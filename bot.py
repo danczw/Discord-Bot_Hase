@@ -1,34 +1,52 @@
 # imports
-import discord
+from discord.ext import commands
 import dotenv
 import os
 import random
 
+# load environment variables
 dotenv.load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
-SERVER = os.getenv('DISCORD_SERVER')
 
-client = discord.Client()
+# initiate bot
+bot = commands.Bot(command_prefix = "!")
 
-@client.event
+# connect bot
+@bot.event
 async def on_ready():
-    server = discord.utils.get(client.guilds, name = SERVER)
-    
-    print(f"### {client.user} is connected to Discord! ###")
-    print(f"{client.user} is connected to: {server.name} - {server.id}\n")
+    print(f"{bot.user.name} has connected to Discord!")
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
+# command - greet the user
+@bot.command(name = "hello", help = "Says hello... or maybe not.")
+async def hello(ctx):
     quote = [
-        "What?",
-        "Go Away!"
+        "Whad up?",
+        "Not you again...",
+        "Nice!"
     ]
 
-    if message.content == "hi":
-        response = random.choice(quote)
-        await message.channel.send(response)
+    response = random.choice(quote)
+    await ctx.send(response)
 
-client.run(TOKEN)
+# command - roll a dice
+@bot.command(name = "dice", help = "Simulates rolling a dice. Optionally add number to increase number of dice rolls. e.g. '!dice 3'. Max rolls is 10")
+async def dice(ctx, rolls: int=None):
+    if  not rolls:
+        rolls = 1
+    if rolls > 10:
+        await ctx.send("I only have 10 dice.")
+    else:
+        dice = [
+            str(random.choice(range(1, 7)))
+            for throw in range(rolls)
+        ]
+        await ctx.send(", ".join(dice))
+
+# bot error handling
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, command.errors.CheckFailure):
+        await ctx.send('You do not have the correct role for this command.')
+
+# run bot
+bot.run(TOKEN)
