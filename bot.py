@@ -32,7 +32,7 @@ async def on_ready():
 async def info(ctx):
     _line_break = "- - - -"
     _server_name =       f"**Server name:** {ctx.guild}"
-    _server_owner =      f"**Server owner** {ctx.guild.owner}:"
+    _server_owner =      f"**Server owner:** {ctx.guild.owner}:"
     _server_region =     f"**Server region:** {str(ctx.guild.region).title()}"
     _member_count =      f"**Members:** {ctx.guild.member_count}"
     _text_channels =     f"**Text Channels**: {len([channel for channel in ctx.guild.text_channels])}"
