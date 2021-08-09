@@ -14,6 +14,7 @@ Basic discord bot with various features based on Python:
 
 Dependencies can be found in `environment.yml`
 
-### Deplyoment:
+### Production:
+View *production* branch for deployment to [Heroku](https://www.heroku.com)
 - `Procfile` for initializing bot on Heroku
 - `requirements.txt` used for environment in Heroku
