@@ -12,7 +12,7 @@ Basic discord bot with various features based on Python:
 - run `python bot.py`
 - add bot to your Discord server
 
-Dependencies can be found in `environment.yml`
+Dependencies can be found in `environment.yml`. For local development, secrets can be set in `.env` file. For deployment, secrets should be set in the app settings under config vars.
 
 ### Production:
 View *master* branch for deployment to [Heroku](https://www.heroku.com). Including:

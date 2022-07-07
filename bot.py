@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 import dotenv
 import os
+import openai
 import random
 
 
@@ -12,9 +13,11 @@ import random
 is_prod = os.environ.get('IS_HEROKU', False)
 if is_prod:
     TOKEN = os.environ.get('DISCORD_TOKEN', None)
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', None)
 else:
     dotenv.load_dotenv()
-    TOKEN = os.getenv("DISCORD_TOKEN")
+    TOKEN = os.getenv('DISCORD_TOKEN')
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 print(f'prod env: {is_prod}')
 
@@ -78,6 +81,20 @@ async def dice(ctx, _rolls: int=None):
         ]
         await ctx.send(", ".join(_dice))
 
+# talk to the bot
+@bot.command(name = "talk", help = "Talk to bot just like a human.")
+async def hello(ctx, *, _message):
+    
+    # use GPT3 to create an answer
+    openai.api_key = OPENAI_API_KEY
+    response = openai.Completion.create(engine = "text-davinci-002",
+                                        prompt = _message,
+                                        max_tokens = 150,
+                                        n = 1,
+                                        temperature = 0.1)
+    
+    await ctx.send(response.choices[0].text)
+
 
 ############################ EVENT HANDLING - USER  ############################
 
@@ -88,13 +105,14 @@ async def on_member_join(member):
         f"""
         Welcome to **{member.guild.name}**
 
-        Pleased to have you with us, make sure to stay respectful and read the guidelines in #rules.
+        Pleased to have you with us, make sure to stay respectful.
         Type '*!help*' in any channel to find available commands.
         """
     )
     await member.guild.owner.send(f"{member} just joined {member.guild.name}.")
 
-    # role = discord.utils.get(member.guild.roles, name = "XXXX") # TODO: move to .env
+    # TODO: move to .env
+    # role = discord.utils.get(member.guild.roles, name = "XXXX")
     # await member.add_roles(role)
 
 
