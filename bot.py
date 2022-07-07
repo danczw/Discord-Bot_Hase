@@ -42,13 +42,12 @@ async def info(ctx):
     _line_break = "- - - -"
     _server_name =       f"**Server name:** {ctx.guild}"
     _server_owner =      f"**Server owner:** {ctx.guild.owner}:"
-    _server_region =     f"**Server region:** {str(ctx.guild.region).title()}"
     _member_count =      f"**Members:** {ctx.guild.member_count}"
     _text_channels =     f"**Text Channels**: {len([channel for channel in ctx.guild.text_channels])}"
     _voice_channels =    f"**Voice Channels**: {len([channel for channel in ctx.guild.voice_channels])}"
 
     response = "\n".join([
-        _server_name, _server_owner, _server_region, _line_break, _member_count, _text_channels, _voice_channels,
+        _server_name, _server_owner, _line_break, _member_count, _text_channels, _voice_channels,
     ])
 
     await ctx.send(response)
@@ -82,7 +81,7 @@ async def dice(ctx, _rolls: int=None):
         await ctx.send(", ".join(_dice))
 
 # talk to the bot
-@bot.command(name = "talk", help = "Talk to bot just like a human.")
+@bot.command(name = "talk", help = "Talk to bot and ask questions, he's just like a human.")
 async def hello(ctx, *, _message):
     
     # use GPT3 to create an answer
