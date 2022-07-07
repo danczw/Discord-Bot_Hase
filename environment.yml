@@ -1,5 +1,8 @@
-# This file may be used to create an environment using:
-# $ conda create --name <env> --file <this file>
-discord.py=1.7
-python=3.9
-python-dotenv=0.19
+name: discbot
+channels:
+  - default
+  - conda-forge
+dependencies:
+  - discord.py=1.7
+  - python=3.9
+  - python-dotenv=0.19
