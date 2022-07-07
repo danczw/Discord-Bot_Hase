@@ -66,7 +66,7 @@ async def hello(ctx):
     await ctx.send(response)
 
 # command - roll a dice
-@bot.command(name = "dice", help = "Simulates rolling a dice. Add a number to increase number of dice _rolls. e.g. '!dice 3'. Max _rolls is 10")
+@bot.command(name = "dice", help = "Simulates rolling a dice, e.g. '!dice 3'. Max _rolls is 10")
 async def dice(ctx, _rolls: int=None):
     if not _rolls:
         _rolls = 1
@@ -81,21 +81,21 @@ async def dice(ctx, _rolls: int=None):
 
 ############################ EVENT HANDLING - USER  ############################
 
-# new user - greet user, assign basic role and notify owner
-# @bot.event
-# async def on_member_join(member):
-#     await member.send(
-#         f"""
-#         Welcome to **{member.guild.name}**
+# new user - greet user and notify owner
+@bot.event
+async def on_member_join(member):
+    await member.send(
+        f"""
+        Welcome to **{member.guild.name}**
 
-#         Pleased to have you with us, make sure to stay respectful and read the guidelines in #rules.
-#         Type '*!help*' in any channel to find available commands.
-#         """
-#     )
-#     await member.guild.owner.send(f"{member} just joined {member.guild.name}.")
+        Pleased to have you with us, make sure to stay respectful and read the guidelines in #rules.
+        Type '*!help*' in any channel to find available commands.
+        """
+    )
+    await member.guild.owner.send(f"{member} just joined {member.guild.name}.")
 
-#     role = discord.utils.get(member.guild.roles, name = "XXXX") # TODO: move to .env
-#     await member.add_roles(role)
+    # role = discord.utils.get(member.guild.roles, name = "XXXX") # TODO: move to .env
+    # await member.add_roles(role)
 
 
 ################################ ERROR HANDLING ################################
