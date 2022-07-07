@@ -5,8 +5,7 @@ Basic discord bot with various features based on Python:
 - fun user commands 
 - new user PM greeting
 - owner notification on new user joining
-
-You can also talk to the bot just like a real human, utilizing GPT3 text generation.
+- talk to the bot just like a real human :speech_balloon: (utilizing GPT3 text generation)
 
 <br>
 
