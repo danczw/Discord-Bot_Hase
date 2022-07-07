@@ -8,9 +8,15 @@ import random
 
 #################################### SETUP  ####################################
 
-# load environment variables
-dotenv.load_dotenv()
-TOKEN = os.getenv("DISCORD_TOKEN")
+# load environment variables depending on local dev or prod env
+is_prod = os.environ.get('IS_HEROKU', False)
+if is_prod:
+    TOKEN = os.environ.get('DISCORD_TOKEN', None)
+else:
+    dotenv.load_dotenv()
+    TOKEN = os.getenv("DISCORD_TOKEN")
+
+print(f'prod env: {is_prod}')
 
 # initiate bot
 client = discord.Client()
