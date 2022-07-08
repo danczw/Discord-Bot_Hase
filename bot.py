@@ -91,7 +91,7 @@ async def hello(ctx, *, _message):
                                         max_tokens = 150,
                                         n = 1,
                                         temperature = 0.9,
-                                        frequency_penalty = 1.0)
+                                        frequency_penalty = 1.9)
     
     await ctx.send(response.choices[0].text)
 
