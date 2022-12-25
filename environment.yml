@@ -1,9 +1,0 @@
-name: discbot
-channels:
-  - default
-  - conda-forge
-dependencies:
-  - discord.py=1.7
-  - python=3.10.5
-  - python-dotenv=0.19
-  - openai=0.14
