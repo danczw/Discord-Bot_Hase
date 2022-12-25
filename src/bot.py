@@ -10,16 +10,24 @@ from discord.ext import commands
 # ----------------------------------- SETUP -----------------------------------
 
 # load environment variables depending on local dev or prod env
-is_prod = os.environ.get('IS_HEROKU', False)
-if is_prod:
-    TOKEN = os.environ.get('DISCORD_TOKEN', None)
-    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', None)
+is_docker = os.environ.get('ENV_DOCKER', False)
+if is_docker:
+    TOKEN = os.environ.get('DISCORD_TOKEN', None).strip('""')
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', None).strip('""')
 else:
     dotenv.load_dotenv()
     TOKEN = os.getenv('DISCORD_TOKEN')
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-print(f'prod env: {is_prod}')
+print(f'is_docker: {is_docker}')
+
+if TOKEN is None:
+    raise ValueError("No token found. Please set DISCORD_TOKEN.")
+if OPENAI_API_KEY is None:
+    raise ValueError("No token found. Please set OPENAI_API_KEY.")
+
+print('Discord Token: ' + TOKEN)
+print('OpenAI API Key: ' + OPENAI_API_KEY)
 
 # initiate bot
 intents = discord.Intents.all()

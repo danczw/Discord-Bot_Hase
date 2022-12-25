@@ -39,4 +39,15 @@ Following event handlers are available:
 - create `.env` file with your personal discord bot token (see `.env.example`) and [invite the bot to your server](https://discordpy.readthedocs.io/en/stable/discord.html)
 - run `python src/bot.py`
 
-Dependencies can be found in `pyproject.toml`. For local development, secrets can be set in `.env` file. For deployment, secrets should be set in the app settings under config vars.
+Dependencies can be found in `pyproject.toml`. For local development, secrets can be set in `.env` file.
+
+<br>
+
+------------
+
+<br>
+
+### Deployment:
+
+Build docker image for deployment using `docker build -t bot:<version> .`
+Run the container using `docker container run -d --env-file ./.env bot:<version>`
