@@ -37,7 +37,7 @@ Following event handlers are available:
 
 - create virtual virtual environment using `pyproject.toml` via `poetry install`
 - create `.env` file with your personal discord bot token (see `.env.example`) and [invite the bot to your server](https://discordpy.readthedocs.io/en/stable/discord.html)
-- run `python src/bot.py`
+- run `poetry run python src/bot.py`
 
 Dependencies can be found in `pyproject.toml`. For local development, secrets can be set in `.env` file.
 
@@ -49,5 +49,35 @@ Dependencies can be found in `pyproject.toml`. For local development, secrets ca
 
 ### Deployment:
 
-Build docker image for deployment using `docker build -t bot:<version> .`
-Run the container using `docker container run -d --env-file ./.env bot:<version>`
+For deployment via Azure Container Instances, following steps are required.
+
+```bash
+
+    # 1. - build docker image locally
+    docker build -t bot:<version> .
+
+    # 2. - login to Azure
+    docker login azure
+
+    # 3. (optional) - create Azure Container Registry via Azure Portal or Azure CLI
+    az acr create --resource-group <resource-group> --name <registry> --sku Basic
+
+    # 4. - login to Azure Container Registry
+    docker login <registry>.azurecr.io
+
+    # 5. - tag docker image
+    docker tag bot:<version> <registry>.azurecr.io/bot:<version>
+
+    # 6. - push docker image to Azure Container Registry
+    docker push <registry>.azurecr.io/bot:<version> 
+
+    # 7. (optional) - create Azure Container Instance context
+    docker context create aci <context-name>
+
+    # 8. - set Azure Container Instance context
+    docker context use <context-name>
+
+    # 9. - run the container in Azure Container Instance
+    docker run -d --env-file ./.env <registry>.azurecr.io/bot:<version>
+
+```
