@@ -13,6 +13,7 @@ from discord.ext import commands
 
 # ----------------------------------- SETUP -----------------------------------
 
+
 # TODO: make dynamic
 # load environment variables depending on local dev or prod env
 is_docker = os.environ.get('ENV_DOCKER', False)
