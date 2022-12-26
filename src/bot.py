@@ -1,33 +1,40 @@
 # imports
 import os
 import random
+from datetime import datetime
 
 import discord
 import dotenv
 import openai
+import requests
 from discord.ext import commands
+
+# TODO: add logger
 
 # ----------------------------------- SETUP -----------------------------------
 
+# TODO: make dynamic
 # load environment variables depending on local dev or prod env
 is_docker = os.environ.get('ENV_DOCKER', False)
 if is_docker:
-    TOKEN = os.environ.get('DISCORD_TOKEN', None).strip('""')
+    DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN', None).strip('""')
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', None).strip('""')
+    OPENWEATHER_API_KEY = os.environ.get('OPENWEATHER_API_KEY', None
+                                         ).strip('""')
+    BINGMAPS_API_KEY = os.environ.get('BINGMAPS_API_KEY', None).strip('""')
 else:
     dotenv.load_dotenv()
-    TOKEN = os.getenv('DISCORD_TOKEN')
+    DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
+    BINGMAPS_API_KEY = os.getenv('BINGMAPS_API_KEY')
 
 print(f'is_docker: {is_docker}')
 
-if TOKEN is None:
-    raise ValueError("No token found. Please set DISCORD_TOKEN.")
-if OPENAI_API_KEY is None:
-    raise ValueError("No token found. Please set OPENAI_API_KEY.")
-
-print('Discord Token: ' + TOKEN)
-print('OpenAI API Key: ' + OPENAI_API_KEY)
+for i in [DISCORD_TOKEN, OPENAI_API_KEY,
+          OPENWEATHER_API_KEY, BINGMAPS_API_KEY]:
+    if i is None:
+        raise ValueError(f"No token found. Please set {str(i)} in .env file.")
 
 # initiate bot
 intents = discord.Intents.all()
@@ -69,6 +76,95 @@ async def info(ctx):
     ])
 
     await ctx.send(response)
+
+
+# command - show weather data to user
+@bot.command(name="weather", help="Get weather data for a location.")
+async def weather(ctx, _location):
+    _location = _location.title()
+
+    # get geolocation data
+    try:
+        geo_url = f'https://dev.virtualearth.net/REST/v1/Locations?q=' \
+            f'{_location}&key={BINGMAPS_API_KEY}'
+        geo_response = requests.get(geo_url)
+    except requests.exceptions.RequestException as error:
+        print(error)
+        await ctx.send("I don't know where that is.")
+        return
+
+    geo_json = geo_response.json()
+    # pprint(geo_json)
+
+    location = geo_json[
+        'resourceSets'][0]['resources'][0]['address']['formattedAddress']
+    lat = geo_json[
+        'resourceSets'][0]['resources'][0]['point']['coordinates'][0]
+    lng = geo_json[
+        'resourceSets'][0]['resources'][0]['point']['coordinates'][1]
+
+    if lat is None or lng is None:
+        await ctx.send("I don't know where that is.")
+        return
+
+    # get weather data
+    try:
+        exclude = 'minutely,hourly,alerts'
+        weather_url = f'https://api.openweathermap.org/data/3.0/onecall?' \
+            f'lat={lat}&lon={lng}&exclude={exclude}' \
+            f'&appid={OPENWEATHER_API_KEY}&units=metric'
+        weather_response = requests.get(weather_url)
+    except requests.exceptions.RequestException as error:
+        print(error)
+        await ctx.send("I don't know where that is.")
+        return
+
+    # extract relevant weather data
+    weather_json = weather_response.json()
+    temp_rnd = 1
+    # current weather
+    curr_condition = weather_json['current']['weather'][0]['description']
+    curr_temp = round(weather_json['current']['temp'], temp_rnd)
+    curr_temp_feels_like = round(weather_json['current']['feels_like'],
+                                 temp_rnd)
+    curr_humidity = weather_json['current']['humidity']
+    # todays weather
+    today_condition = weather_json['daily'][0]['weather'][0]['description']
+    today_temp_max = round(weather_json['daily'][0]['temp']['max'], temp_rnd)
+    today_temp_min = round(weather_json['daily'][0]['temp']['min'], temp_rnd)
+    today_sunrise = datetime.fromtimestamp(weather_json['daily'][0]['sunrise']
+                                           ).strftime('%H:%M')
+    today_sunset = datetime.fromtimestamp(weather_json['daily'][0]['sunset']
+                                          ).strftime('%H:%M')
+    # tomorrow weather
+    tomorrow_condition = weather_json['daily'][1]['weather'][0]['description']
+    tomorrow_temp_max = round(weather_json['daily'][1]['temp']['max'],
+                              temp_rnd)
+    tomorrow_temp_min = round(weather_json['daily'][1]['temp']['min'],
+                              temp_rnd)
+    tomorrow_sunrise = datetime.fromtimestamp(weather_json['daily'][1]['sunrise']
+                                              ).strftime('%H:%M')
+    tomorrow_sunset = datetime.fromtimestamp(weather_json['daily'][1]['sunset']
+                                             ).strftime('%H:%M')
+
+    message = \
+        f"\n**Weather for {location}**\n" \
+        f"Currently {curr_condition} " \
+        f"with {curr_temp}°C, " \
+        f"feels like {curr_temp_feels_like}°C " \
+        f"and {curr_humidity}% humidity.\n\n" \
+        f"**Today: {today_condition}**\n" \
+        f"High: {today_temp_max}°C - " \
+        f"Low: {today_temp_min}°C\n" \
+        f"Sunrise: {today_sunrise}h - " \
+        f"Sunset: {today_sunset}h\n\n" \
+        f"**Tomorrow: {tomorrow_condition}**\n" \
+        f"High: {tomorrow_temp_max}°C - " \
+        f"Low: {tomorrow_temp_min}°C\n" \
+        f"Sunrise: {tomorrow_sunrise}h - " \
+        f"Sunset: {tomorrow_sunset}h\n"
+
+    await ctx.send(message)
 
 
 # ------------------------------- COMMANDS - FUN ------------------------------
@@ -156,4 +252,4 @@ async def on_command_error(ctx, error):
 # ---------------------------------- RUN BOT  ---------------------------------
 
 # initiate bot
-bot.run(TOKEN)
+bot.run(DISCORD_TOKEN)
