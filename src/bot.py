@@ -9,7 +9,7 @@ from discord.ext import commands
 
 # ----------------------------------- SETUP -----------------------------------
 
-# load environment variables depending on local dev or prod env
+# load environment variables depending on local dev env or docker env
 is_docker = os.environ.get('ENV_DOCKER', False)
 if is_docker:
     TOKEN = os.environ.get('DISCORD_TOKEN', None).strip('""')
