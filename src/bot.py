@@ -6,10 +6,9 @@ import random
 import discord
 import dotenv
 import openai
-import requests
 from discord.ext import commands
 
-from command_helper import create_weather_message
+from commands import get_dice_results, get_server_info, get_weather_info
 
 # ----------------------------------- SETUP -----------------------------------
 
@@ -58,24 +57,7 @@ async def on_ready():
 # command - show meta data to user
 @bot.command(name="info", help="Get meta data about the Server.")
 async def info(ctx):
-    _line_break = "- - - -"
-    _server_name = f"**Server name:** {ctx.guild}"
-    _server_owner = f"**Server owner:** {ctx.guild.owner}:"
-    _member_count = f"**Members:** {ctx.guild.member_count}"
-
-    n_text_channels = len([channel for channel in ctx.guild.text_channels])
-    _text_channels = f"**Text Channels**: {n_text_channels}"
-
-    n_voice_channels = len([channel for channel in ctx.guild.voice_channels])
-    _voice_channels = f"**Voice Channels**: {n_voice_channels}"
-
-    response = "\n".join([
-        _server_name, _server_owner,
-        _line_break,
-        _member_count,
-        _text_channels,
-        _voice_channels,
-    ])
+    response = get_server_info(ctx)
 
     await ctx.send(response)
 
@@ -83,50 +65,11 @@ async def info(ctx):
 # command - show weather data to user
 @bot.command(name="weather", help="Get weather data for a location.")
 async def weather(ctx, _location):
-    _location = _location.title()
-
-    # get geolocation data
-    try:
-        geo_url = f"https://dev.virtualearth.net/REST/v1/Locations?q=" \
-            f"{_location}&key={KEYS['BINGMAPS_API_KEY']}"
-        geo_response = requests.get(geo_url)
-    except requests.exceptions.RequestException as error:
-        print(error)
-        await ctx.send("I don't know where that is.")
-        return
-
-    geo_json = geo_response.json()
-    # pprint(geo_json)
-
-    location = geo_json[
-        "resourceSets"][0]["resources"][0]["address"]["formattedAddress"]
-    lat = geo_json[
-        "resourceSets"][0]["resources"][0]["point"]["coordinates"][0]
-    lng = geo_json[
-        "resourceSets"][0]["resources"][0]["point"]["coordinates"][1]
-
-    if lat is None or lng is None:
-        await ctx.send("I don't know where that is.")
-        return
-
-    # get weather data
-    try:
-        exclude = "minutely,hourly,alerts"
-        weather_url = f"https://api.openweathermap.org/data/3.0/onecall?" \
-            f"lat={lat}&lon={lng}&exclude={exclude}" \
-            f"&appid={KEYS['OPENWEATHER_API_KEY']}&units=metric"
-        weather_response = requests.get(weather_url)
-    except requests.exceptions.RequestException as error:
-        print(error)
-        await ctx.send("I don't know where that is.")
-        return
-
-    # extract relevant weather data
-    weather_json = weather_response.json()
-    message = create_weather_message(weather_json, location)
+    location = _location.title()
+    response = get_weather_info(ctx, location, KEYS)
 
     logger.info(f"Sending weather data for {location}")
-    await ctx.send(message)
+    await ctx.send(response)
 
 
 # ------------------------------- COMMANDS - FUN ------------------------------
@@ -150,15 +93,9 @@ async def hello(ctx):
     help="Simulates rolling a dice, e.g. '$dice 3'. Max _rolls is 10"
 )
 async def dice(ctx, _rolls: int = 0):
-    if _rolls == 0:
-        _rolls = 1
-    if _rolls > 10:
-        await ctx.send("I only have 10 dice.")
-    else:
-        _dice = [
-            str(random.choice(range(1, 7))) for throw in range(_rolls)
-        ]
-        await ctx.send(", ".join(_dice))
+    response = get_dice_results(_rolls)
+
+    await ctx.send(response)
 
 
 # talk to the bot
