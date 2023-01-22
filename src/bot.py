@@ -1,4 +1,5 @@
 # imports
+import logging
 import os
 import random
 
@@ -10,12 +11,14 @@ from discord.ext import commands
 
 from command_helper import create_weather_message
 
-# TODO: add logger
-
 # ----------------------------------- SETUP -----------------------------------
 
+# setup logging
+logger = logging.getLogger("discord")
+logger.setLevel(logging.INFO)
+
 # load environment variables depending on local dev or prod env
-is_docker = os.environ.get('ENV_DOCKER', False)
+is_docker = os.environ.get("ENV_DOCKER", False)
 
 KEYS = {
     "DISCORD_TOKEN": "",
@@ -26,34 +29,31 @@ KEYS = {
 
 if is_docker:
     for key in KEYS:
-        KEYS[key] = os.environ.get(key, "").strip('""')
+        KEYS[key] = os.environ.get(key, "").strip("''")
 else:
     dotenv.load_dotenv()
     for key in KEYS:
         KEYS[key] = os.getenv(key, "")
 
-print(f'is_docker: {is_docker}')
-
 for key in KEYS:
-    if key is None:
+    if key == "":
         raise ValueError(f"No token found. Please set {str(key)} in .env file.")
 
 # initiate bot
 intents = discord.Intents.all()
-
 client = discord.Client(intents=intents)
-
 intents.members = True
-bot = commands.Bot(command_prefix='$', intents=intents)
+bot = commands.Bot(command_prefix="$", intents=intents)
 
 
 # connect bot
 @bot.event
 async def on_ready():
-    print(f"{bot.user.name} has connected to Discord!")
+    logger.info(f"Running in docker: {is_docker}")
+    logger.info(f"Logged in as {bot.user.name} - {bot.user.id}")
+
 
 # ------------------------------ COMMANDS - BASIC -----------------------------
-
 
 # command - show meta data to user
 @bot.command(name="info", help="Get meta data about the Server.")
@@ -87,8 +87,8 @@ async def weather(ctx, _location):
 
     # get geolocation data
     try:
-        geo_url = f'https://dev.virtualearth.net/REST/v1/Locations?q=' \
-            f'{_location}&key={KEYS["BINGMAPS_API_KEY"]}'
+        geo_url = f"https://dev.virtualearth.net/REST/v1/Locations?q=" \
+            f"{_location}&key={KEYS['BINGMAPS_API_KEY']}"
         geo_response = requests.get(geo_url)
     except requests.exceptions.RequestException as error:
         print(error)
@@ -99,11 +99,11 @@ async def weather(ctx, _location):
     # pprint(geo_json)
 
     location = geo_json[
-        'resourceSets'][0]['resources'][0]['address']['formattedAddress']
+        "resourceSets"][0]["resources"][0]["address"]["formattedAddress"]
     lat = geo_json[
-        'resourceSets'][0]['resources'][0]['point']['coordinates'][0]
+        "resourceSets"][0]["resources"][0]["point"]["coordinates"][0]
     lng = geo_json[
-        'resourceSets'][0]['resources'][0]['point']['coordinates'][1]
+        "resourceSets"][0]["resources"][0]["point"]["coordinates"][1]
 
     if lat is None or lng is None:
         await ctx.send("I don't know where that is.")
@@ -111,10 +111,10 @@ async def weather(ctx, _location):
 
     # get weather data
     try:
-        exclude = 'minutely,hourly,alerts'
-        weather_url = f'https://api.openweathermap.org/data/3.0/onecall?' \
-            f'lat={lat}&lon={lng}&exclude={exclude}' \
-            f'&appid={KEYS["OPENWEATHER_API_KEY"]}&units=metric'
+        exclude = "minutely,hourly,alerts"
+        weather_url = f"https://api.openweathermap.org/data/3.0/onecall?" \
+            f"lat={lat}&lon={lng}&exclude={exclude}" \
+            f"&appid={KEYS['OPENWEATHER_API_KEY']}&units=metric"
         weather_response = requests.get(weather_url)
     except requests.exceptions.RequestException as error:
         print(error)
@@ -125,6 +125,7 @@ async def weather(ctx, _location):
     weather_json = weather_response.json()
     message = create_weather_message(weather_json, location)
 
+    logger.info(f"Sending weather data for {location}")
     await ctx.send(message)
 
 
@@ -163,7 +164,7 @@ async def dice(ctx, _rolls: int = 0):
 # talk to the bot
 @bot.command(
     name="write",
-    help="Let the bot write something for you, e.g. '$write a poem'"
+    help="Let the bot write something for you, e.g. '$write a poem'."
 )
 async def gpt(ctx, *, _message):
 
@@ -176,6 +177,7 @@ async def gpt(ctx, *, _message):
                                         temperature=0.9,
                                         frequency_penalty=1.1)
 
+    logger.info("Sending GPT3 response.")
     await ctx.send(response.choices[0].text)
 
 
@@ -205,8 +207,10 @@ async def on_member_join(member):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CheckFailure):
-        await ctx.send('You do not have the correct role for this command.')
+        logger.info(f"User {ctx.author} does not have the correct role.")
+        await ctx.send("You do not have the correct role for this command.")
     if isinstance(error, commands.errors.CommandNotFound):
+        logger.info(f"User {ctx.author} entered an invalid command.")
         await ctx.send("Not a viable comment. Type '$help'")
 
 
