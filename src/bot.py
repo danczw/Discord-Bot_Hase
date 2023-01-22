@@ -78,9 +78,9 @@ async def weather(ctx, _location):
 @bot.command(name="hello", help="Says hello... or maybe not.")
 async def hello(ctx):
     quote = [
-        "Whad up?",
-        "Not you again...",
-        "Nice!"
+        "Whad up?", "Not you again...", "Nice!", "Was geht?", "How ya doin?",
+        "Greetings, fellow traveler!", "I'm not the bot you are looking for. :disguised_face:",
+        ":robot:", "Hello there!", "Howdy! :cowboy:", "Hi! :wave:", "Hey! :wave:"
     ]
 
     response = random.choice(quote)
