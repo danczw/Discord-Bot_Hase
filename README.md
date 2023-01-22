@@ -19,8 +19,9 @@ Following commands are available:
 
 - *$info:* displays server info such as name, owner, member count, etc.
 - *$hello:* displays a greeting message to the user
-- *$dice _rolls:* rolls a six sided dice _rolls times
-- *$write _message:* talk to the bot about anything you want (gpt3 based)
+- *$dice _n rolls_:* rolls a six sided dice _rolls times
+- *$write _message_:* talk to the bot about anything you want (gpt3 based)
+- *$weather _city_:* displays weather for a given city
 - *$help:* displays help for all available commands
 
 Following event handlers are available:
