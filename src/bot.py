@@ -105,7 +105,7 @@ async def dice(ctx, _rolls: int = 0):
     name="write",
     help="Let the bot write something for you, e.g. '$write a poem'."
 )
-async def gpt(ctx, *, _message):
+async def gpt_text(ctx, *, _message):
 
     # use GPT3 to create an answer
     openai.api_key = KEYS["OPENAI_API_KEY"]
@@ -116,8 +116,32 @@ async def gpt(ctx, *, _message):
                                         temperature=0.8,
                                         frequency_penalty=1.1)
 
-    logger.info("Sending GPT3 response.")
+    logger.info("Sending GPT3 text response.")
     await ctx.send(response.choices[0].text)
+
+
+# code the bot
+@bot.command(
+    name="code",
+    help="Let the bot write code for you, e.g. '$code python function ...'."
+)
+async def gpt_code(ctx, *, _message):
+
+    # use GPT3 to create an answer
+    openai.api_key = KEYS["OPENAI_API_KEY"]
+    response = openai.Completion.create(engine="code-cushman-001",
+                                        prompt=_message,
+                                        max_tokens=200,
+                                        n=1
+                                        # temperature=0.8,
+                                        # frequency_penalty=1.1
+                                        )
+
+    # TODO: format code response
+
+    logger.info(response.choices[0].text)
+    logger.info("Sending GPT3 coding response.")
+    await ctx.send(":warning: - command still in beta:\n\n" + response.choices[0].text)
 
 
 # --------------------------- EVENT HANDLING - USER  --------------------------
