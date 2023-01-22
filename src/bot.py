@@ -98,6 +98,8 @@ async def dice(ctx, _rolls: int = 0):
     await ctx.send(response)
 
 
+# ------------------------------- COMMANDS - GPT ------------------------------
+
 # talk to the bot
 @bot.command(
     name="write",
@@ -107,11 +109,11 @@ async def gpt(ctx, *, _message):
 
     # use GPT3 to create an answer
     openai.api_key = KEYS["OPENAI_API_KEY"]
-    response = openai.Completion.create(engine="text-davinci-002",
+    response = openai.Completion.create(engine="text-davinci-003",
                                         prompt=_message,
-                                        max_tokens=150,
+                                        max_tokens=200,
                                         n=1,
-                                        temperature=0.9,
+                                        temperature=0.8,
                                         frequency_penalty=1.1)
 
     logger.info("Sending GPT3 response.")
