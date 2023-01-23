@@ -28,7 +28,7 @@ KEYS = {
 
 if is_docker:
     for key in KEYS:
-        KEYS[key] = os.environ.get(key, "").strip("''")
+        KEYS[key] = os.environ.get(key, "").strip('""')
 else:
     dotenv.load_dotenv()
     for key in KEYS:
