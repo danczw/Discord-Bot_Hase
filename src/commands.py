@@ -1,5 +1,5 @@
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import requests
 
@@ -97,24 +97,40 @@ def create_weather_message(weather_json, location: str) -> str:
     Returns:
         str: message displayed to user with weather conditions for a location
     """
-    temp_rnd = 1
+    decimal_round = 1
+    daylightsaving = 1
+
     # current weather
     curr_condition = weather_json['current']['weather'][0]['description']
-    curr_temp = round(weather_json['current']['temp'], temp_rnd)
-    curr_temp_feels_like = round(weather_json['current']['feels_like'], temp_rnd)
+    curr_temp = round(weather_json['current']['temp'], decimal_round)
+    curr_temp_feels_like = round(weather_json['current']['feels_like'], decimal_round)
     curr_humidity = weather_json['current']['humidity']
+
     # todays weather
     today_condition = weather_json['daily'][0]['weather'][0]['description']
-    today_temp_max = round(weather_json['daily'][0]['temp']['max'], temp_rnd)
-    today_temp_min = round(weather_json['daily'][0]['temp']['min'], temp_rnd)
-    today_sunrise = datetime.fromtimestamp(weather_json['daily'][0]['sunrise']).strftime('%H:%M')
-    today_sunset = datetime.fromtimestamp(weather_json['daily'][0]['sunset']).strftime('%H:%M')
+    today_temp_max = round(weather_json['daily'][0]['temp']['max'], decimal_round)
+    today_temp_min = round(weather_json['daily'][0]['temp']['min'], decimal_round)
+    today_sunrise = (
+        datetime.fromtimestamp(weather_json['daily'][0]['sunrise'] + weather_json['timezone_offset'])
+        - timedelta(hours=daylightsaving)
+    ).strftime('%H:%M')
+    today_sunset = (
+        datetime.fromtimestamp(weather_json['daily'][0]['sunset'] + weather_json['timezone_offset'])
+        - timedelta(hours=daylightsaving)
+    ).strftime('%H:%M')
+
     # tomorrow weather
     tomorrow_condition = weather_json['daily'][1]['weather'][0]['description']
-    tomorrow_temp_max = round(weather_json['daily'][1]['temp']['max'], temp_rnd)
-    tomorrow_temp_min = round(weather_json['daily'][1]['temp']['min'], temp_rnd)
-    tomorrow_sunrise = datetime.fromtimestamp(weather_json['daily'][1]['sunrise']).strftime('%H:%M')
-    tomorrow_sunset = datetime.fromtimestamp(weather_json['daily'][1]['sunset']).strftime('%H:%M')
+    tomorrow_temp_max = round(weather_json['daily'][1]['temp']['max'], decimal_round)
+    tomorrow_temp_min = round(weather_json['daily'][1]['temp']['min'], decimal_round)
+    tomorrow_sunrise = (
+        datetime.fromtimestamp(weather_json['daily'][1]['sunrise'] + weather_json['timezone_offset'])
+        - timedelta(hours=daylightsaving)
+    ).strftime('%H:%M')
+    tomorrow_sunset = (
+        datetime.fromtimestamp(weather_json['daily'][1]['sunset'] + weather_json['timezone_offset'])
+        - timedelta(hours=daylightsaving)
+    ).strftime('%H:%M')
 
     # condition to icon
     curr_condition_icon = condition_to_icon(weather_json['current']['weather'][0]['id'])
@@ -127,10 +143,10 @@ def create_weather_message(weather_json, location: str) -> str:
         f"{curr_condition_icon} Currently {curr_condition} with {curr_temp}°C, \n" \
         f"feels like {curr_temp_feels_like}°C and {curr_humidity}% humidity.\n\n" \
         f"{today_condition_icon} **Today: {today_condition}**\n" \
-        f"High: {today_temp_max}°C -- Low: {today_temp_min}°C\n" \
+        f"Low: {today_temp_min}°C -- High: {today_temp_max}°C\n" \
         f"Sunrise: {today_sunrise}h -- Sunset: {today_sunset}h\n\n" \
         f"{tomorrow_condition_icon} **Tomorrow: {tomorrow_condition}**\n" \
-        f"High: {tomorrow_temp_max}°C -- Low: {tomorrow_temp_min}°C\n" \
+        f"Low: {tomorrow_temp_min}°C -- High: {tomorrow_temp_max}°C\n" \
         f"Sunrise: {tomorrow_sunrise}h -- Sunset: {tomorrow_sunset}h\n"
 
     return message

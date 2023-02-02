@@ -13,6 +13,12 @@ from commands import get_dice_results, get_server_info, get_weather_info
 # ----------------------------------- SETUP -----------------------------------
 
 # setup logging
+log_path = './logs/discord.log'
+
+handler = logging.FileHandler(filename=log_path, encoding='utf-8', mode='w')
+formatter = logging.Formatter('%(asctime)s: %(levelname)s :%(name)s - %(message)s')
+
+discord.utils.setup_logging(handler=handler, formatter=formatter)
 logger = logging.getLogger("discord")
 logger.setLevel(logging.INFO)
 
@@ -59,6 +65,8 @@ async def on_ready():
 async def info(ctx):
     response = get_server_info(ctx)
 
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
+
     await ctx.send(response)
 
 
@@ -68,7 +76,9 @@ async def weather(ctx, _location):
     location = _location.title()
     response = get_weather_info(ctx, location, KEYS)
 
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     logger.info(f"Sending weather data for {location}")
+
     await ctx.send(response)
 
 
@@ -83,6 +93,8 @@ async def hello(ctx):
         ":robot:", "Hello there!", "Howdy! :cowboy:", "Hi! :wave:", "Hey! :wave:"
     ]
 
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
+
     response = random.choice(quote)
     await ctx.send(response)
 
@@ -94,6 +106,8 @@ async def hello(ctx):
 )
 async def dice(ctx, _rolls: int = 0):
     response = get_dice_results(_rolls)
+
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
 
     await ctx.send(response)
 
@@ -115,6 +129,8 @@ async def gpt_text(ctx, *, _message):
                                         n=1,
                                         temperature=0.8,
                                         frequency_penalty=1.1)
+
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
 
     logger.info("Sending GPT3 text response.")
     await ctx.send(response.choices[0].text)
@@ -139,8 +155,9 @@ async def gpt_code(ctx, *, _message):
 
     # TODO: format code response
 
-    logger.info(response.choices[0].text)
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     logger.info("Sending GPT3 coding response.")
+
     await ctx.send(":warning: - command still in beta:\n\n" + response.choices[0].text)
 
 
