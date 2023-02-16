@@ -8,7 +8,8 @@ import dotenv
 import openai
 from discord.ext import commands
 
-from commands import get_dice_results, get_server_info, get_weather_info
+from helper import (get_crypto_data, get_dice_results, get_server_info,
+                    get_weather_info)
 
 # ----------------------------------- SETUP -----------------------------------
 
@@ -63,22 +64,31 @@ async def on_ready():
 # command - show meta data to user
 @bot.command(name="info", help="Get meta data about the Server.")
 async def info(ctx):
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     response = get_server_info(ctx)
 
-    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-
+    logger.info("Sending server info")
     await ctx.send(response)
 
 
 # command - show weather data to user
 @bot.command(name="weather", help="Get weather data for a location.")
-async def weather(ctx, _location):
-    location = _location.title()
-    response = get_weather_info(ctx, location, KEYS)
-
+async def weather(ctx, _location: str):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-    logger.info(f"Sending weather data for {location}")
+    location = _location.title()
+    response = get_weather_info(ctx, location, KEYS, logger)
 
+    logger.info(f"Sending weather data for {location}")
+    await ctx.send(response)
+
+
+# command - get crypto data
+@bot.command(name="crypto", help="Get price for a crypto currency.")
+async def crypto(ctx, _coin: str):
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
+    response = get_crypto_data(_coin, logger)
+
+    logger.info(f"Sending crypto data for {_coin}")
     await ctx.send(response)
 
 

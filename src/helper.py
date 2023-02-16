@@ -1,3 +1,4 @@
+import logging
 import random
 from datetime import datetime, timedelta
 
@@ -35,7 +36,7 @@ def get_server_info(ctx) -> str:
     return response
 
 
-def get_weather_info(ctx, location: str, KEYS: dict) -> str:
+def get_weather_info(ctx, location: str, KEYS: dict, logger: logging.Logger) -> str:
     """gets weather info for a location and creates a message
 
     Args:
@@ -52,7 +53,7 @@ def get_weather_info(ctx, location: str, KEYS: dict) -> str:
             f"{location}&key={KEYS['BINGMAPS_API_KEY']}"
         geo_response = requests.get(geo_url)
     except requests.exceptions.RequestException as error:
-        print(error)
+        logger.error(error)
         return "I don't know where that is."
 
     geo_json = geo_response.json()
@@ -77,7 +78,7 @@ def get_weather_info(ctx, location: str, KEYS: dict) -> str:
             f"&appid={KEYS['OPENWEATHER_API_KEY']}&units=metric"
         weather_response = requests.get(weather_url)
     except requests.exceptions.RequestException as error:
-        print(error)
+        logger.error(error)
         return "I don't know where that is."
 
     # extract relevant weather data
@@ -199,3 +200,31 @@ def get_dice_results(n_rolls: int = 1) -> str:
     else:
         _dice = [str(random.choice(range(1, 7))) for throw in range(n_rolls)]
         return ", ".join(_dice)
+
+
+def get_crypto_data(_coin: str, logger: logging.Logger) -> str:
+    """Gets crypto data from coingecko API
+
+    Args:
+        _coin (str): crypto currency name
+        logger (logging.Logger): logger object
+
+    Returns:
+        str: Message with crypto data or error message
+
+    TODO: view /coins/{id} for more data
+    - https://www.coingecko.com/en/api/documentation
+    """
+    coin_id = _coin.lower()
+
+    # get coin data from id
+    coin_data_url = f'https://api.coingecko.com/api/v3/simple/price?ids={coin_id}&vs_currencies=eur'
+    try:
+        coin_data_response = requests.get(coin_data_url)
+        logger.info(f"Coin data received for {coin_id}")
+        response = f"**{coin_id.title()}**: {coin_data_response.json()[coin_id]['eur']}€"
+        return response
+
+    except requests.exceptions.RequestException as error:
+        logger.error(error)
+        return "I can't find you symbol, are you sure it is correct?"

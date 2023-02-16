@@ -22,6 +22,7 @@ Following commands are available:
 - *$dice _n rolls_:* rolls a six sided dice _rolls times
 - *$write _message_:* talk to the bot about anything you want (gpt3 based)
 - *$weather _city_:* displays weather for a given city
+- *$crypto _name_:* displays current crypto currency price
 - *$help:* displays help for all available commands
 
 Following event handlers are available:
