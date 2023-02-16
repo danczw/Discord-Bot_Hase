@@ -56,7 +56,8 @@ bot = commands.Bot(command_prefix="$", intents=intents)
 @bot.event
 async def on_ready():
     logger.info(f"Running in docker: {is_docker}")
-    logger.info(f"Logged in as {bot.user.name} - {bot.user.id}")
+    if bot.user:
+        logger.info(f"Logged in as {bot.user.name} - {bot.user.id}")
 
 
 # ------------------------------ COMMANDS - BASIC -----------------------------
@@ -97,13 +98,12 @@ async def crypto(ctx, _coin: str):
 # command - greet the user
 @bot.command(name="hello", help="Says hello... or maybe not.")
 async def hello(ctx):
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     quote = [
         "Whad up?", "Not you again...", "Nice!", "Was geht?", "How ya doin?",
         "Greetings, fellow traveler!", "I'm not the bot you are looking for. :disguised_face:",
         ":robot:", "Hello there!", "Howdy! :cowboy:", "Hi! :wave:", "Hey! :wave:"
     ]
-
-    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
 
     response = random.choice(quote)
     await ctx.send(response)
@@ -114,11 +114,9 @@ async def hello(ctx):
     name="dice",
     help="Simulates rolling a dice, e.g. '$dice 3'. Max _rolls is 10"
 )
-async def dice(ctx, _rolls: int = 0):
-    response = get_dice_results(_rolls)
-
+async def dice(ctx, _rolls: int = 0) -> None:
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-
+    response = get_dice_results(_rolls)
     await ctx.send(response)
 
 
@@ -129,7 +127,8 @@ async def dice(ctx, _rolls: int = 0):
     name="write",
     help="Let the bot write something for you, e.g. '$write a poem'."
 )
-async def gpt_text(ctx, *, _message):
+async def gpt_text(ctx, *, _message: str):
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
 
     # use GPT3 to create an answer
     openai.api_key = KEYS["OPENAI_API_KEY"]
@@ -139,8 +138,6 @@ async def gpt_text(ctx, *, _message):
                                         n=1,
                                         temperature=0.8,
                                         frequency_penalty=1.1)
-
-    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
 
     logger.info("Sending GPT3 text response.")
     await ctx.send(response.choices[0].text)
@@ -152,6 +149,7 @@ async def gpt_text(ctx, *, _message):
     help="Let the bot write code for you, e.g. '$code python function ...'."
 )
 async def gpt_code(ctx, *, _message):
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
 
     # use GPT3 to create an answer
     openai.api_key = KEYS["OPENAI_API_KEY"]
@@ -165,9 +163,7 @@ async def gpt_code(ctx, *, _message):
 
     # TODO: format code response
 
-    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     logger.info("Sending GPT3 coding response.")
-
     await ctx.send(":warning: - command still in beta:\n\n" + response.choices[0].text)
 
 
