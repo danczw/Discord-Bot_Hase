@@ -44,7 +44,6 @@ COPY --from=builder /app/.venv ./.venv
 COPY ./src/ ./
 COPY ./logs/ ./logs/
 RUN chmod 755 bot.py
-RUN chmod 755 test.py
 
 CMD ["python", "./bot.py"]
 # ENTRYPOINT ["tail", "-f", "/dev/null"]
