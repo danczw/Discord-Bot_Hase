@@ -8,8 +8,8 @@ import dotenv
 import openai
 from discord.ext import commands
 
-from helper import (get_crypto_data, get_dice_results, get_server_info,
-                    get_weather_info)
+from helper import (get_crypto_data, get_dice_results, get_holiday_data,
+                    get_server_info, get_weather_info)
 
 # ----------------------------------- SETUP -----------------------------------
 
@@ -90,6 +90,16 @@ async def crypto(ctx, _coin: str):
     response = get_crypto_data(_coin, logger)
 
     logger.info(f"Sending crypto data for {_coin}")
+    await ctx.send(response)
+
+
+# command - get public holidays
+@bot.command(name="holidays", help="Get public holidays for a country.")
+async def holiday(ctx, _country: str):
+    logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
+    response = get_holiday_data(logger, _country)
+
+    logger.info(f"Sending holiday data for {_country}")
     await ctx.send(response)
 
 
