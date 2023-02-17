@@ -1,11 +1,6 @@
-# Discord Bot
+# Basic Discord Bot - BDB
 
-Basic discord bot with various features based on Python:
-- basic user commands
-- fun user commands 
-- new user PM greeting
-- owner notification on new user joining
-- talk to the bot just like a real human :speech_balloon: (utilizing GPT3 text generation)
+This bot is designed to provide a variety of useful features for users in a Discord server, and is built using the Python programming language. The BDB offers a range of capabilities, including basic user commands, fun user commands, a new user private message (PM) greeting, an owner notification when a new user joins the server, and the ability to talk to the bot just like a real human, thanks to the power of the GPT-3 text generation tool.
 
 <br>
 
@@ -13,21 +8,37 @@ Basic discord bot with various features based on Python:
 
 <br>
 
-### Bot commands:
+## Bot commands
 
-Following commands are available:
+The BDB features a range of commands, which are organized into different categories based on their functionality. These categories include BASIC, FUN, and GPT3. `_abc_` shows a argument required by the command.
 
-- *$info:* displays server info such as name, owner, member count, etc.
-- *$hello:* displays a greeting message to the user
-- *$dice _n rolls_:* rolls a six sided dice _rolls times
-- *$write _message_:* talk to the bot about anything you want (gpt3 based)
-- *$weather _city_:* displays weather for a given city
-- *$crypto _name_:* displays current crypto currency price
-- *$help:* displays help for all available commands
+Here are the commands that fall under each category:
 
-Following event handlers are available:
+### BASIC commands
 
-- *on_member_join:*  informs server owner, greets the new user ~~and automatically assigns a role to a new user~~
+The following commands fall under the category of BASIC:
+
+- *$info:* This command displays information about the server, including its name, owner, and member count.
+- *$help:* This command provides help and guidance on how to use all of the available commands.
+
+### DATA commands
+- *$weather \_city\_:* This command displays the weather for a given city, using data provided by the OpenWeatherMap API.
+- *$crypto \_name\_:* This command displays the current price of a specified cryptocurrency, using data provided by the CoinGecko API.
+- *$holidays \_country code\_:* This command displays the holidays for a given country, using data provided by the date.nager.at API.
+
+### FUN commands
+- *$hello:* This command displays a friendly greeting message to the user.
+- *$dice \_n rolls\_:* This command rolls a six-sided dice a specified number of times and displays the results.
+
+### GPT3 commands
+- *$write \_message\_:* This command allows you to talk to the bot about anything you want, using the OpenAI GPT3 API.
+- *$code \_message\_:* This command allows you to talk to the bot about code, using the OpenAI GPT3 API. **Please note that this feature is currently in beta.**
+
+<br>
+
+In addition to these commands, the BDB also includes ~~several~~ event handlers that can be triggered by certain actions in the server. These handlers include:
+
+- *on_member_join:* This event handler notifies the server owner when a new user joins the server and greets the new user with a PM.
 
 <br>
 
@@ -35,7 +46,7 @@ Following event handlers are available:
 
 <br>
 
-### Development environment setup:
+## Development environment setup:
 
 - create virtual virtual environment using `pyproject.toml` via `poetry install`
 - create `.env` file with your personal discord bot token (see `.env.example`) and [invite the bot to your server](https://discordpy.readthedocs.io/en/stable/discord.html)
@@ -49,7 +60,7 @@ Dependencies can be found in `pyproject.toml`. For local development, secrets ca
 
 <br>
 
-### Deployment:
+## Deployment:
 
 For deployment via Azure Container Instances, following steps are required.
 

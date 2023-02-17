@@ -46,7 +46,9 @@ async def info(ctx):
     await ctx.send(response)
 
 
-# command - show weather data to user
+# ------------------------------- COMMANDS - DATA ------------------------------
+
+# command - get weather data for a location
 @bot.command(name="weather", help="Get weather data for a location.")
 async def weather(ctx, _location: str):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
@@ -57,8 +59,8 @@ async def weather(ctx, _location: str):
     await ctx.send(response)
 
 
-# command - get crypto data
-@bot.command(name="crypto", help="Get price for a crypto currency.")
+# command - get crypto data for a coin
+@bot.command(name="crypto", help="Get price for a crypto currency, e.g. '$crypto Bitcoin'.")
 async def crypto(ctx, _coin: str):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     response = get_crypto_data(_coin, logger)
@@ -67,9 +69,9 @@ async def crypto(ctx, _coin: str):
     await ctx.send(response)
 
 
-# command - get public holidays
-@bot.command(name="holidays", help="Get public holidays for a country.")
-async def holiday(ctx, _country: str):
+# command - get public holidays for a country
+@bot.command(name="holidays", help="Get public holidays for a country, e.g. '$holidays DE'.")
+async def holiday(ctx, _country: str = 'DE'):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     response = get_holiday_data(logger, _country)
 
@@ -79,7 +81,7 @@ async def holiday(ctx, _country: str):
 
 # ------------------------------- COMMANDS - FUN ------------------------------
 
-# command - greet the user
+# command - greet the user with a random greeting
 @bot.command(name="hello", help="Says hello... or maybe not.")
 async def hello(ctx):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
@@ -93,10 +95,10 @@ async def hello(ctx):
     await ctx.send(response)
 
 
-# command - roll a dice
+# command - roll a dice up to 10 times
 @bot.command(
     name="dice",
-    help="Simulates rolling a dice, e.g. '$dice 3'. Max _rolls is 10"
+    help="Simulates rolling a dice, e.g. '$dice 3'. Max rolls is 10"
 )
 async def dice(ctx, _rolls: int = 0) -> None:
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
@@ -106,7 +108,7 @@ async def dice(ctx, _rolls: int = 0) -> None:
 
 # ------------------------------- COMMANDS - GPT ------------------------------
 
-# talk to the bot
+# talk to the bot - let the bot write something for you using GPT3
 @bot.command(
     name="write",
     help="Let the bot write something for you, e.g. '$write a poem'."
@@ -127,7 +129,7 @@ async def gpt_text(ctx, *, _message: str):
     await ctx.send(response.choices[0].text)
 
 
-# code the bot
+# code with the bot - let the bot write code for you using GPT3
 @bot.command(
     name="code",
     help="Let the bot write code for you, e.g. '$code python function ...'."
@@ -176,9 +178,12 @@ async def on_member_join(member):
 # bot error handling
 @bot.event
 async def on_command_error(ctx, error):
+    # warn the user if they do not have the correct role
     if isinstance(error, commands.errors.CheckFailure):
         logger.info(f"User {ctx.author} does not have the correct role.")
         await ctx.send("You do not have the correct role for this command.")
+
+    # warn the user if they enter an invalid command
     if isinstance(error, commands.errors.CommandNotFound):
         logger.info(f"User {ctx.author} entered an invalid command.")
         await ctx.send("Not a viable comment. Type '$help'")
