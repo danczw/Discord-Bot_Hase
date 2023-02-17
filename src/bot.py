@@ -1,49 +1,23 @@
 # imports
-import logging
-import os
 import random
 
 import discord
-import dotenv
 import openai
+import yaml
 from discord.ext import commands
 
 from helper import (get_crypto_data, get_dice_results, get_holiday_data,
                     get_server_info, get_weather_info)
+from setup import keys_setup, log_setup
 
 # ----------------------------------- SETUP -----------------------------------
 
+# read yaml config
+config_params = yaml.safe_load(open("./conf/config.yaml"))
 # setup logging
-log_path = './logs/discord.log'
-
-handler = logging.FileHandler(filename=log_path, encoding='utf-8', mode='w')
-formatter = logging.Formatter('%(asctime)s: %(levelname)s :%(name)s - %(message)s')
-
-discord.utils.setup_logging(handler=handler, formatter=formatter)
-logger = logging.getLogger("discord")
-logger.setLevel(logging.INFO)
-
+logger = log_setup(config_params=config_params)
 # load environment variables depending on local dev or prod env
-is_docker = os.environ.get("ENV_DOCKER", False)
-
-KEYS = {
-    "DISCORD_TOKEN": "",
-    "OPENAI_API_KEY": "",
-    "OPENWEATHER_API_KEY": "",
-    "BINGMAPS_API_KEY": ""
-}
-
-if is_docker:
-    for key in KEYS:
-        KEYS[key] = os.environ.get(key, "").strip('""')
-else:
-    dotenv.load_dotenv()
-    for key in KEYS:
-        KEYS[key] = os.getenv(key, "")
-
-for key in KEYS:
-    if key == "":
-        raise ValueError(f"No token found. Please set {str(key)} in .env file.")
+KEYS, is_docker = keys_setup()
 
 # initiate bot
 intents = discord.Intents.all()
@@ -212,5 +186,6 @@ async def on_command_error(ctx, error):
 
 # ---------------------------------- RUN BOT  ---------------------------------
 
-# initiate bot
-bot.run(KEYS["DISCORD_TOKEN"])
+if __name__ == "__main__":
+    # initiate bot
+    bot.run(KEYS["DISCORD_TOKEN"])

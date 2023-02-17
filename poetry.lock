@@ -265,6 +265,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "pyyaml"
+version = "6.0"
+description = "YAML parser and emitter for Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "requests"
 version = "2.28.1"
 description = "Python HTTP for Humans."
@@ -343,7 +351,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "944af4e31f7a4743ef31785413f93ed346e2592ecb4a91d07a22eb3e222bcdeb"
+content-hash = "a2c3ab6bddf36071137449222bd8d3f4ae657b4211b96dd557a5f7f57369fc49"
 
 [metadata.files]
 aiohttp = []
@@ -370,6 +378,7 @@ pyflakes = []
 python-dateutil = []
 python-dotenv = []
 pytz = []
+pyyaml = []
 requests = []
 six = []
 tqdm = []
