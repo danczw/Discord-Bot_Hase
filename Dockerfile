@@ -43,6 +43,7 @@ COPY --from=builder /app/.venv ./.venv
 
 COPY ./src/ ./
 COPY ./logs/ ./logs/
+COPY ./conf/ ./conf/
 RUN chmod 755 bot.py
 
 CMD ["python", "./bot.py"]
