@@ -228,3 +228,43 @@ def get_crypto_data(_coin: str, logger: logging.Logger) -> str:
     except requests.exceptions.RequestException as error:
         logger.error(error)
         return "I can't find you symbol, are you sure it is correct?"
+
+
+def get_holiday_data(logger: logging.Logger, _country: str = 'DE') -> str:
+    """_summary_
+
+    Args:
+        logger (logging.Logger): logger object
+        _country (str, optional): country code for holiday data. Defaults to 'DE'.
+    Returns:
+        str: Message with holiday data or error message
+    """
+    country_code = _country.upper()
+
+    # get current year
+    curr_year = datetime.now().year
+
+    # get holiday data from country code
+    holiday_data_url = f'https://date.nager.at/api/v3/publicholidays/{curr_year}/{country_code}'
+    try:
+        holiday_data_response = requests.get(holiday_data_url)
+        logger.info(f"Holiday data received for {country_code}")
+
+        # create response message
+        response = f"**Holidays for {country_code}**\n"
+        for holiday in holiday_data_response.json():
+            # extract counties from response
+            if holiday['counties']:
+                counties = ', '.join([county.split('-')[1] for county in holiday['counties']])
+                counties = f" ({counties})\n"
+            else:
+                counties = '\n'
+
+            row = f"{holiday['date']} - {holiday['name']}" + counties
+            response += row
+
+        return response
+
+    except requests.exceptions.RequestException as error:
+        logger.error(error)
+        return "I can't find your country, are you sure it is a correct country code?"
