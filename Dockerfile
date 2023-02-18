@@ -22,7 +22,7 @@ WORKDIR /app
 COPY poetry.lock pyproject.toml ./
 
 # this will create the folder /app/.venv
-RUN poetry install --no-dev --no-root --no-ansi --no-interaction
+RUN poetry install --only main --no-root --no-ansi --no-interaction
 
 # ---------------------------------------------------------------------
 # deployment stage
@@ -47,4 +47,3 @@ COPY ./conf/ ./conf/
 RUN chmod 755 bot.py
 
 CMD ["python", "./bot.py"]
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
