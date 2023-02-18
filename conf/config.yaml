@@ -1,1 +1,6 @@
+# paths:
 log_path: "./logs/discord.log"
+
+# rounding:
+temperature_rounding: 1
+currency_perc_rounding: 1
