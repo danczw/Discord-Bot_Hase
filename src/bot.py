@@ -100,7 +100,7 @@ async def hello(ctx):
     name="dice",
     help="Simulates rolling a dice, e.g. '$dice 3'. Max rolls is 10"
 )
-async def dice(ctx, _rolls: int = 0) -> None:
+async def dice(ctx, _rolls: int = 1) -> None:
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     response = get_dice_results(_rolls)
     await ctx.send(response)
