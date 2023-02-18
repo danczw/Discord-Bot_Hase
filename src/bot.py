@@ -63,7 +63,7 @@ async def weather(ctx, _location: str):
 @bot.command(name="crypto", help="Get price for a crypto currency, e.g. '$crypto Bitcoin'.")
 async def crypto(ctx, _coin: str):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-    response = get_crypto_data(_coin, logger)
+    response = get_crypto_data(_coin=_coin, logger=logger, config_params=config_params)
 
     logger.info(f"Sending crypto data for {_coin}")
     await ctx.send(response)
@@ -167,10 +167,6 @@ async def on_member_join(member):
         """
     )
     await member.guild.owner.send(f"{member} just joined {member.guild.name}.")
-
-    # TODO: move to .env
-    # role = discord.utils.get(member.guild.roles, name = "XXXX")
-    # await member.add_roles(role)
 
 
 # ------------------------------- ERROR HANDLING ------------------------------

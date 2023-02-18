@@ -1,4 +1,5 @@
 import logging
+import math
 import random
 from datetime import datetime, timedelta
 
@@ -202,34 +203,145 @@ def get_dice_results(n_rolls: int = 1) -> str:
         return ", ".join(_dice)
 
 
-def get_crypto_data(_coin: str, logger: logging.Logger) -> str:
+def get_crypto_data(_coin: str, logger: logging.Logger, config_params: dict) -> str:
     """Gets crypto data from coingecko API
 
     Args:
         _coin (str): crypto currency name
         logger (logging.Logger): logger object
+        config_params (dict): config parameters
 
     Returns:
         str: Message with crypto data or error message
     """
-    coin_id = _coin.lower()
 
-    # get coin data from id
-    coin_data_url = f'''https://api.coingecko.com/api/v3/coins/{coin_id}
-        ?localization=false&tickers=false&market_data=true&community_data=true&developer_data=false'''
+    # define variables for API call
+    coin_id = _coin.lower()
+    message_error = "I can't find your currency, are you sure it is correct?"
+    coin_data_url = (
+        f"https://api.coingecko.com/api/v3/coins/{coin_id}"
+        "/?localization=false&tickers=false&market_data=true&community_data=true&developer_data=false"
+    )
+    logger.debug(f"crypto request url: {coin_data_url}")
+
     try:
-        coin_data_response = requests.get(coin_data_url)
+        # get coin data from coingecko API and parse to json
+        coin_data_response = requests.get(coin_data_url).json()
+        if "error" in coin_data_response:
+            # if coin not found, return error message
+            logger.error(f"Error in coin data response: {coin_data_response['error']}")
+            return message_error
         logger.info(f"Coin data received for {coin_id}")
 
-        response = f"**{coin_id.title()}**: {coin_data_response.json()[coin_id]['eur']}€"
-        return response
+        # create message with coin data
+        message = create_crypto_message(
+            coin_id=coin_id,
+            coin_data=coin_data_response,
+            config_params=config_params
+        )
+        return message
 
     except requests.exceptions.RequestException as error:
         logger.error(error)
-        return "I can't find you symbol, are you sure it is correct?"
+        return message_error
 
 
-def get_holiday_data(logger: logging.Logger, _country: str = 'DE') -> str:
+def create_crypto_message(coin_id: str, coin_data: dict, config_params: dict) -> str:
+    """Creates message with crypto data
+
+    Args:
+        coin_id (str): coin id
+        coin_data (dict): coingecko API response data for coin id
+        config_params (dict): config parameters
+
+    Returns:
+        str: message with crypto data
+    """    
+    currency_perc_round = config_params["currency_perc_rounding"]
+
+    # prepare response message
+    coin_name = coin_data["name"]
+    coin_symbol = coin_data["symbol"]
+    coin_price = format(coin_data["market_data"]["current_price"]["eur"], ',.2f')
+    coin_ath_date = coin_data["market_data"]["ath_date"]["eur"].split("T")[0]
+    coin_ath_price = format(coin_data["market_data"]["ath"]["eur"], ',.2f')
+    coin_ath_change_perc = round(coin_data["market_data"]["ath_change_percentage"]["eur"], currency_perc_round)
+    coin_curr_market_cap = millify(coin_data["market_data"]["market_cap"]["eur"])
+    coin_curr_market_cap_rank = coin_data["market_data"]["market_cap_rank"]
+    coin_high_24h = format(coin_data["market_data"]["high_24h"]["eur"], ',.2f')
+    coin_low_24h = format(coin_data["market_data"]["low_24h"]["eur"], ',.2f')
+    coin_price_change_perc_24h = round(coin_data["market_data"]["price_change_percentage_24h"], currency_perc_round)
+    coin_price_change_perc_7d = round(coin_data["market_data"]["price_change_percentage_7d"], currency_perc_round)
+    coin_price_change_perc_14d = round(coin_data["market_data"]["price_change_percentage_14d"], currency_perc_round)
+    coin_price_change_perc_30d = round(coin_data["market_data"]["price_change_percentage_30d"], currency_perc_round)
+    coin_price_change_perc_60d = round(coin_data["market_data"]["price_change_percentage_60d"], currency_perc_round)
+    coin_price_change_perc_200d = round(coin_data["market_data"]["price_change_percentage_200d"], currency_perc_round)
+    coin_price_change_perc_1y = round(coin_data["market_data"]["price_change_percentage_1y"], currency_perc_round)
+    coin_coingecko_url = f"https://www.coingecko.com/en/coins/{coin_id}"
+
+    message = (
+        f":coin: **{coin_name} ({coin_symbol}) - {coin_price}**€\n"
+        "----------------------------------------\n"
+        f"**24h:** {coin_low_24h}€ - {coin_high_24h}€\n"
+        f"**Market Cap:** {coin_curr_market_cap}€ (rank {coin_curr_market_cap_rank})\n"
+        f"**ATH:** {coin_ath_price}€ on {coin_ath_date} "
+        f"({coin_ath_change_perc}% since)\n\n"
+
+        f"**Price Change:**\n"
+        f"24h: {up_down_emoji(coin_price_change_perc_24h)} {coin_price_change_perc_24h}%\n"
+        f"7d: {up_down_emoji(coin_price_change_perc_7d)} {coin_price_change_perc_7d}%\n"
+        f"14d: {up_down_emoji(coin_price_change_perc_14d)} {coin_price_change_perc_14d}%\n"
+        f"30d: {up_down_emoji(coin_price_change_perc_30d)} {coin_price_change_perc_30d}%\n"
+        f"60d: {up_down_emoji(coin_price_change_perc_60d)} {coin_price_change_perc_60d}%\n"
+        f"200d: {up_down_emoji(coin_price_change_perc_200d)} {coin_price_change_perc_200d}%\n"
+        f"1y: {up_down_emoji(coin_price_change_perc_1y)} {coin_price_change_perc_1y}%\n\n"
+
+        f"More: {coin_coingecko_url}"
+    )
+
+    return message
+
+
+def millify(n: float) -> str:
+    """Converts large number to short format
+
+    Args:
+        n (float): number to convert
+
+    Returns:
+        _type_: converted number
+    """    
+    millnames = ['',' k',' m',' bn',' tn']
+    n = float(n)
+    millidx = max(
+        0,
+        min(
+            len(millnames)-1,
+            int(math.floor(0 if n == 0 else math.log10(abs(n))/3))
+        )
+    )
+
+    return '{:.0f}{}'.format(n / 10**(3 * millidx), millnames[millidx])
+
+
+def up_down_emoji(_value: float) -> str:
+    """Returns up or down chart emoji based on value
+
+    Args:
+        _value (float): value to check
+
+    Returns:
+        str: up or down shart emoji
+    """
+    if _value > 0:
+        return ":chart_with_upwards_trend:"
+    elif _value < 0:
+        return ":chart_with_downwards_trend:"
+    else:
+        return ":arrow_right:"
+
+
+def get_holiday_data(logger: logging.Logger, _country: str = "DE") -> str:
     """_summary_
 
     Args:
