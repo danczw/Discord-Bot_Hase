@@ -53,7 +53,7 @@ async def info(ctx):
 async def weather(ctx, _location: str):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
     location = _location.title()
-    response = get_weather_info(ctx, location, KEYS, logger)
+    response = get_weather_info(location=location, KEYS=KEYS, logger=logger, config_params=config_params)
 
     logger.info(f"Sending weather data for {location}")
     await ctx.send(response)
@@ -73,7 +73,7 @@ async def crypto(ctx, _coin: str):
 @bot.command(name="holidays", help="Get public holidays for a country, e.g. '$holidays DE'.")
 async def holiday(ctx, _country: str = 'DE'):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-    response = get_holiday_data(logger, _country)
+    response = get_holiday_data(_country=_country, logger=logger)
 
     logger.info(f"Sending holiday data for {_country}")
     await ctx.send(response)
@@ -118,12 +118,14 @@ async def gpt_text(ctx, *, _message: str):
 
     # use GPT3 to create an answer
     openai.api_key = KEYS["OPENAI_API_KEY"]
-    response = openai.Completion.create(engine="text-davinci-003",
-                                        prompt=_message,
-                                        max_tokens=200,
-                                        n=1,
-                                        temperature=0.8,
-                                        frequency_penalty=1.1)
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=_message,
+        max_tokens=200,
+        n=1,
+        temperature=0.8,
+        frequency_penalty=1.1
+    )
 
     logger.info("Sending GPT3 text response.")
     await ctx.send(response.choices[0].text)
@@ -132,20 +134,21 @@ async def gpt_text(ctx, *, _message: str):
 # code with the bot - let the bot write code for you using GPT3
 @bot.command(
     name="code",
-    help="Let the bot write code for you, e.g. '$code python function ...'."
+    help="Let the bot write code for you, e.g. '$code a function ...'."
 )
 async def gpt_code(ctx, *, _message):
     logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
 
     # use GPT3 to create an answer
     openai.api_key = KEYS["OPENAI_API_KEY"]
-    response = openai.Completion.create(engine="code-cushman-001",
-                                        prompt=_message,
-                                        max_tokens=200,
-                                        n=1
-                                        # temperature=0.8,
-                                        # frequency_penalty=1.1
-                                        )
+    response = openai.Completion.create(
+        engine="code-cushman-001",
+        prompt=_message,
+        max_tokens=200,
+        n=1
+        # temperature=0.8,
+        # frequency_penalty=1.1
+    )
 
     # TODO: format code response
 
