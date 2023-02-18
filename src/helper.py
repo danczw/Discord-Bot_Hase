@@ -15,6 +15,11 @@ def get_server_info(ctx) -> str:
     Returns:
         str: message displayed to user with server info
     """
+    # check if user is in a server or private message
+    if not ctx.guild:
+        return ":face_with_monocle: You are not in a server."
+
+    # create message
     _line_break = "- - - -"
     _server_name = f"**Server name:** {ctx.guild}"
     _server_owner = f"**Server owner:** {ctx.guild.owner}:"
@@ -26,7 +31,7 @@ def get_server_info(ctx) -> str:
     n_voice_channels = len([channel for channel in ctx.guild.voice_channels])
     _voice_channels = f"**Voice Channels**: {n_voice_channels}"
 
-    response = "\n".join([
+    message = "\n".join([
         _server_name, _server_owner,
         _line_break,
         _member_count,
@@ -34,7 +39,7 @@ def get_server_info(ctx) -> str:
         _voice_channels,
     ])
 
-    return response
+    return message
 
 
 def get_weather_info(location: str, KEYS: dict, logger: logging.Logger, config_params: dict) -> str:
