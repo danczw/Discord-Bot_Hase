@@ -21,9 +21,9 @@ def log_setup(config_params: dict):
     formatter = logging.Formatter('%(asctime)s: %(levelname)s :%(name)s - %(message)s')
 
     # include discord lib logging and set level
-    discord.utils.setup_logging(handler=handler, formatter=formatter)
+    discord.utils.setup_logging(handler=handler, formatter=formatter, level=logging.DEBUG)
     logger = logging.getLogger("discord")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     return logger
 
