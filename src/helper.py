@@ -37,13 +37,14 @@ def get_server_info(ctx) -> str:
     return response
 
 
-def get_weather_info(ctx, location: str, KEYS: dict, logger: logging.Logger) -> str:
+def get_weather_info(location: str, KEYS: dict, logger: logging.Logger, config_params: dict) -> str:
     """gets weather info for a location and creates a message
 
     Args:
-        ctx (_type_): discord context
         location (str): location name of weather conditions request
         KEYS (dict): dictionary of API keys
+        logger (logging.Logger): logger
+        config_params (dict): config parameters
 
     Returns:
         str: message displayed to user with weather conditions for a location
@@ -58,15 +59,9 @@ def get_weather_info(ctx, location: str, KEYS: dict, logger: logging.Logger) -> 
         return "I don't know where that is."
 
     geo_json = geo_response.json()
-    # pprint(geo_json)
 
     # extract relevant geolocation data
-    location = geo_json[
-        "resourceSets"][0]["resources"][0]["address"]["formattedAddress"]
-    lat = geo_json[
-        "resourceSets"][0]["resources"][0]["point"]["coordinates"][0]
-    lng = geo_json[
-        "resourceSets"][0]["resources"][0]["point"]["coordinates"][1]
+    location, lat, lng = extract_geo_data(geo_json=geo_json)
 
     if lat is None or lng is None:
         return "I don't know where that is."
@@ -84,72 +79,90 @@ def get_weather_info(ctx, location: str, KEYS: dict, logger: logging.Logger) -> 
 
     # extract relevant weather data
     weather_json = weather_response.json()
-    message = create_weather_message(weather_json, location)
+    message = create_weather_message(weather_json=weather_json, location=location, config_params=config_params)
 
     return message
 
 
-def create_weather_message(weather_json, location: str) -> str:
+def extract_geo_data(geo_json: dict) -> tuple:
+    """extracts relevant geolocation data from json
+
+    Args:
+        geo_json (str, json): json of geolocation data for a location
+
+    Returns:
+        tuple: location name, latitude, longitude
+    """
+    location = geo_json["resourceSets"][0]["resources"][0]["address"]["formattedAddress"]
+    lat = geo_json["resourceSets"][0]["resources"][0]["point"]["coordinates"][0]
+    lng = geo_json["resourceSets"][0]["resources"][0]["point"]["coordinates"][1]
+
+    return location, lat, lng
+
+
+def create_weather_message(weather_json: dict, location: str, config_params: dict) -> str:
     """extracts relevant weather data from json and creates a message
 
     Args:
         weather_json (str, json): json of weather conditions for a location
         location (str): location name of weather conditions request
+        config_params (dict): config parameters
 
     Returns:
         str: message displayed to user with weather conditions for a location
     """
-    decimal_round = 1
+    decimal_round = config_params["temperature_rounding"]
     daylightsaving = 1
 
     # current weather
-    curr_condition = weather_json['current']['weather'][0]['description']
-    curr_temp = round(weather_json['current']['temp'], decimal_round)
-    curr_temp_feels_like = round(weather_json['current']['feels_like'], decimal_round)
-    curr_humidity = weather_json['current']['humidity']
+    curr_condition = weather_json["current"]["weather"][0]["description"]
+    curr_temp = round(weather_json["current"]["temp"], decimal_round)
+    curr_temp_feels_like = round(weather_json["current"]["feels_like"], decimal_round)
+    curr_humidity = weather_json["current"]["humidity"]
 
     # todays weather
-    today_condition = weather_json['daily'][0]['weather'][0]['description']
-    today_temp_max = round(weather_json['daily'][0]['temp']['max'], decimal_round)
-    today_temp_min = round(weather_json['daily'][0]['temp']['min'], decimal_round)
+    today_condition = weather_json["daily"][0]["weather"][0]["description"]
+    today_temp_max = round(weather_json["daily"][0]["temp"]["max"], decimal_round)
+    today_temp_min = round(weather_json["daily"][0]["temp"]["min"], decimal_round)
     today_sunrise = (
-        datetime.fromtimestamp(weather_json['daily'][0]['sunrise'] + weather_json['timezone_offset'])
+        datetime.fromtimestamp(weather_json["daily"][0]["sunrise"] + weather_json["timezone_offset"])
         - timedelta(hours=daylightsaving)
-    ).strftime('%H:%M')
+    ).strftime("%H:%M")
     today_sunset = (
-        datetime.fromtimestamp(weather_json['daily'][0]['sunset'] + weather_json['timezone_offset'])
+        datetime.fromtimestamp(weather_json["daily"][0]["sunset"] + weather_json["timezone_offset"])
         - timedelta(hours=daylightsaving)
-    ).strftime('%H:%M')
+    ).strftime("%H:%M")
 
     # tomorrow weather
-    tomorrow_condition = weather_json['daily'][1]['weather'][0]['description']
-    tomorrow_temp_max = round(weather_json['daily'][1]['temp']['max'], decimal_round)
-    tomorrow_temp_min = round(weather_json['daily'][1]['temp']['min'], decimal_round)
+    tomorrow_condition = weather_json["daily"][1]["weather"][0]["description"]
+    tomorrow_temp_max = round(weather_json["daily"][1]["temp"]["max"], decimal_round)
+    tomorrow_temp_min = round(weather_json["daily"][1]["temp"]["min"], decimal_round)
     tomorrow_sunrise = (
-        datetime.fromtimestamp(weather_json['daily'][1]['sunrise'] + weather_json['timezone_offset'])
+        datetime.fromtimestamp(weather_json["daily"][1]["sunrise"] + weather_json["timezone_offset"])
         - timedelta(hours=daylightsaving)
-    ).strftime('%H:%M')
+    ).strftime("%H:%M")
     tomorrow_sunset = (
-        datetime.fromtimestamp(weather_json['daily'][1]['sunset'] + weather_json['timezone_offset'])
+        datetime.fromtimestamp(weather_json["daily"][1]["sunset"] + weather_json["timezone_offset"])
         - timedelta(hours=daylightsaving)
-    ).strftime('%H:%M')
+    ).strftime("%H:%M")
 
     # condition to icon
-    curr_condition_icon = condition_to_icon(weather_json['current']['weather'][0]['id'])
-    today_condition_icon = condition_to_icon(weather_json['daily'][0]['weather'][0]['id'])
-    tomorrow_condition_icon = condition_to_icon(weather_json['daily'][1]['weather'][0]['id'])
+    curr_condition_icon = condition_to_icon(condition_id=weather_json["current"]["weather"][0]["id"])
+    today_condition_icon = condition_to_icon(condition_id=weather_json["daily"][0]["weather"][0]["id"])
+    tomorrow_condition_icon = condition_to_icon(condition_id=weather_json["daily"][1]["weather"][0]["id"])
 
     # create bot response message
-    message = \
-        f"\n**Weather for {location}**\n" \
-        f"{curr_condition_icon} Currently {curr_condition} with {curr_temp}°C, \n" \
-        f"feels like {curr_temp_feels_like}°C and {curr_humidity}% humidity.\n\n" \
-        f"{today_condition_icon} **Today: {today_condition}**\n" \
-        f"Low: {today_temp_min}°C -- High: {today_temp_max}°C\n" \
-        f"Sunrise: {today_sunrise}h -- Sunset: {today_sunset}h\n\n" \
-        f"{tomorrow_condition_icon} **Tomorrow: {tomorrow_condition}**\n" \
-        f"Low: {tomorrow_temp_min}°C -- High: {tomorrow_temp_max}°C\n" \
+    message = (
+        f"\n**Weather for {location}**\n"
+        f"{curr_condition_icon} Currently {curr_condition} with {curr_temp}°C, \n"
+        f"feels like {curr_temp_feels_like}°C and {curr_humidity}% humidity.\n\n"
+        f"{today_condition_icon} **Today: {today_condition}**\n"
+        f"Low: {today_temp_min}°C -- High: {today_temp_max}°C\n"
+        f"Sunrise: {today_sunrise}h -- Sunset: {today_sunset}h\n\n"
+        f"{tomorrow_condition_icon} **Tomorrow: {tomorrow_condition}**\n"
+        f"Low: {tomorrow_temp_min}°C -- High: {tomorrow_temp_max}°C\n"
         f"Sunrise: {tomorrow_sunrise}h -- Sunset: {tomorrow_sunset}h\n"
+    )
 
     return message
 
@@ -303,13 +316,13 @@ def create_crypto_message(coin_id: str, coin_data: dict, config_params: dict) ->
 
 
 def millify(n: float) -> str:
-    """Converts large number to short format
+    """Converts large numbers to short, readable string format
 
     Args:
         n (float): number to convert
 
     Returns:
-        _type_: converted number
+        str: converted number
     """    
     millnames = ['',' k',' m',' bn',' tn']
     n = float(n)
@@ -356,25 +369,25 @@ def get_holiday_data(logger: logging.Logger, _country: str = "DE") -> str:
     curr_year = datetime.now().year
 
     # get holiday data from country code
-    holiday_data_url = f'https://date.nager.at/api/v3/publicholidays/{curr_year}/{country_code}'
+    holiday_data_url = f"https://date.nager.at/api/v3/publicholidays/{curr_year}/{country_code}"
     try:
         holiday_data_response = requests.get(holiday_data_url)
         logger.info(f"Holiday data received for {country_code}")
 
         # create response message
-        response = f"**Holidays for {country_code}**\n"
+        message = f"**Holidays for {country_code}**\n"
         for holiday in holiday_data_response.json():
             # extract counties from response
-            if holiday['counties']:
-                counties = ', '.join([county.split('-')[1] for county in holiday['counties']])
+            if holiday["counties"]:
+                counties = ", ".join([county.split("-")[1] for county in holiday["counties"]])
                 counties = f" ({counties})\n"
             else:
-                counties = '\n'
+                counties = "\n"
 
             row = f"{holiday['date']} - {holiday['name']}" + counties
-            response += row
+            message += row
 
-        return response
+        return message
 
     except requests.exceptions.RequestException as error:
         logger.error(error)
