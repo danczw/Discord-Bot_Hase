@@ -211,17 +211,16 @@ def get_crypto_data(_coin: str, logger: logging.Logger) -> str:
 
     Returns:
         str: Message with crypto data or error message
-
-    TODO: view /coins/{id} for more data
-    - https://www.coingecko.com/en/api/documentation
     """
     coin_id = _coin.lower()
 
     # get coin data from id
-    coin_data_url = f'https://api.coingecko.com/api/v3/simple/price?ids={coin_id}&vs_currencies=eur'
+    coin_data_url = f'''https://api.coingecko.com/api/v3/coins/{coin_id}
+        ?localization=false&tickers=false&market_data=true&community_data=true&developer_data=false'''
     try:
         coin_data_response = requests.get(coin_data_url)
         logger.info(f"Coin data received for {coin_id}")
+
         response = f"**{coin_id.title()}**: {coin_data_response.json()[coin_id]['eur']}€"
         return response
 

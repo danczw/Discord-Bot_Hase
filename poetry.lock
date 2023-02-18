@@ -106,19 +106,6 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
-name = "flake8"
-version = "6.0.0"
-description = "the modular source code checker: pep8 pyflakes and co"
-category = "main"
-optional = false
-python-versions = ">=3.8.1"
-
-[package.dependencies]
-mccabe = ">=0.7.0,<0.8.0"
-pycodestyle = ">=2.10.0,<2.11.0"
-pyflakes = ">=3.0.0,<3.1.0"
-
-[[package]]
 name = "frozenlist"
 version = "1.3.3"
 description = "A list-like structure which implements collections.abc.MutableSequence"
@@ -133,14 +120,6 @@ description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
 python-versions = ">=3.5"
-
-[[package]]
-name = "mccabe"
-version = "0.7.0"
-description = "McCabe checker, plugin for flake8"
-category = "main"
-optional = false
-python-versions = ">=3.6"
 
 [[package]]
 name = "multidict"
@@ -219,22 +198,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "pycodestyle"
-version = "2.10.0"
-description = "Python style guide checker"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
-name = "pyflakes"
-version = "3.0.1"
-description = "passive checker of Python programs"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -289,6 +252,14 @@ urllib3 = ">=1.21.1,<1.27"
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
+
+[[package]]
+name = "ruff"
+version = "0.0.247"
+description = "An extremely fast Python linter, written in Rust."
+category = "main"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "six"
@@ -351,7 +322,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "a2c3ab6bddf36071137449222bd8d3f4ae657b4211b96dd557a5f7f57369fc49"
+content-hash = "6726b73305fda1e249ce055cf6ac4fe2414798ab910388697593d56cde103fc0"
 
 [metadata.files]
 aiohttp = []
@@ -363,23 +334,20 @@ charset-normalizer = []
 colorama = []
 "discord.py" = []
 et-xmlfile = []
-flake8 = []
 frozenlist = []
 idna = []
-mccabe = []
 multidict = []
 numpy = []
 openai = []
 openpyxl = []
 pandas = []
 pandas-stubs = []
-pycodestyle = []
-pyflakes = []
 python-dateutil = []
 python-dotenv = []
 pytz = []
 pyyaml = []
 requests = []
+ruff = []
 six = []
 tqdm = []
 typing-extensions = []
