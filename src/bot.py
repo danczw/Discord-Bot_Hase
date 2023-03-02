@@ -5,9 +5,7 @@ import discord
 import openai
 import yaml
 from discord.ext import commands
-
-from helper import (get_crypto_data, get_dice_results, get_holiday_data,
-                    get_server_info, get_weather_info)
+from helper import get_crypto_data, get_dice_results, get_holiday_data, get_server_info, get_weather_info
 from setup import keys_setup, log_setup
 
 # ----------------------------------- SETUP -----------------------------------
@@ -118,17 +116,17 @@ async def gpt_text(ctx, *, _message: str):
 
     # use GPT3 to create an answer
     openai.api_key = KEYS["OPENAI_API_KEY"]
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=_message,
-        max_tokens=200,
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": _message}],
+        max_tokens=500,
         n=1,
-        temperature=0.8,
-        frequency_penalty=1.1
+        # temperature=1,
+        # frequency_penalty=1.1
     )
 
     logger.info("Sending GPT3 text response.")
-    await ctx.send(response.choices[0].text)
+    await ctx.send(response.choices[0].message.content)
 
 
 # code with the bot - let the bot write code for you using GPT3
