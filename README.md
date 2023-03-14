@@ -1,6 +1,6 @@
 # Basic Discord Bot - BDB
 
-This bot is designed to provide a variety of useful features for users in a Discord server, and is built using the Python programming language. The BDB offers a range of capabilities, including basic user commands, fun user commands, a new user private message (PM) greeting, an owner notification when a new user joins the server, and the ability to talk to the bot just like a real human, thanks to the power of the GPT-3 text generation tool.
+This bot is designed to provide a variety of useful features for users in a Discord server, and is built using the Python programming language. The BDB offers a range of capabilities, including basic user commands, fun user commands, a new user private message (PM) greeting, an owner notification when a new user joins the server, and the ability to talk to the bot just like a real human, thanks to the power of the GPT text generation tool.
 
 <br>
 
@@ -31,8 +31,8 @@ The following commands fall under the category of BASIC:
 - *$dice \_n rolls\_:* This command rolls a six-sided dice a specified number of times and displays the results.
 
 ### GPT3 commands
-- *$write \_message\_:* This command allows you to talk to the bot about anything you want, using the OpenAI GPT3 API.
-- *$code \_message\_:* This command allows you to talk to the bot about code, using the OpenAI GPT3 API. **Please note that this feature is currently in beta.**
+- *$write \_message\_:* This command allows you to talk to the bot about anything you want, using the OpenAI GPT API. 
+- *$code \_message\_:* This command allows you to talk to the bot about code, using the OpenAI GPT3 API. **Please note that this feature is currently in alpha.**
 
 <br>
 
@@ -52,7 +52,9 @@ In addition to these commands, the BDB also includes ~~several~~ event handlers 
 - create `.env` file with your personal discord bot token (see `.env.example`) and [invite the bot to your server](https://discordpy.readthedocs.io/en/stable/discord.html)
 - run `poetry run python src/bot.py`
 
-Dependencies can be found in `pyproject.toml`. For local development, secrets can be set in `.env` file.
+SQLite is used to store message history for GPT. The database and relevant tables are created on start up if not existant and are located in `data/chat.db`. This allows for a persistent chat history and a more natural conversation flow, as the context is retainable for the model.
+
+Logging is configured to write to `logs/discord.log` for debugging purposes. Dependencies can be found in `pyproject.toml`. For local development, secrets can be set in `.env` file. See `conf/config.yaml` for configuration options.
 
 <br>
 
