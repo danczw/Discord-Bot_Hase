@@ -29,7 +29,7 @@ def main():
 
     # initiate bot
     intents = discord.Intents.all()
-    # client = discord.Client(intents=intents) TODO: needed?
+    # client = discord.Client(intents=intents) # TODO: needed?
     intents.members = True
     bot = commands.Bot(command_prefix="$", intents=intents)
 
@@ -40,6 +40,10 @@ def main():
         logger.debug(f"Running in docker: {is_docker}")
         if bot.user:
             logger.info(f"Logged in as {bot.user.name} - {bot.user.id}")
+        
+        # message server owner
+        owner = await bot.fetch_user(int(KEYS["OWNER_ID"]))
+        await owner.send("Bot is online!")
 
 
     # ------------------------------ COMMANDS - BASIC -----------------------------

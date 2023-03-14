@@ -50,6 +50,7 @@ In addition to these commands, the BDB also includes ~~several~~ event handlers 
 
 - create virtual virtual environment using `pyproject.toml` via `poetry install`
 - create `.env` file with your personal discord bot token (see `.env.example`) and [invite the bot to your server](https://discordpy.readthedocs.io/en/stable/discord.html)
+- update further secrets in `.env` file
 - run `poetry run python src/bot.py`
 
 SQLite is used to store message history for GPT. The database and relevant tables are created on start up if not existant and are located in `data/chat.db`. This allows for a persistent chat history and a more natural conversation flow, as the context is retainable for the model.
