@@ -1,4 +1,6 @@
 # imports
+import itertools
+
 import discord
 import yaml
 from bot import MyBot
@@ -20,11 +22,15 @@ def main():
     intents = discord.Intents.default()
     intents.message_content = True
     intents.members = True
-    extensions = [
-        "cogs.commands.cmd_general", "cogs.commands.cmd_fun", "cogs.commands.cmd_data",
-        "cogs.commands.cmd_nlp", "cogs.listeners.lstn_error"
-    ]
 
+    # define extensions to be loaded
+    cmd_extensions = [
+        "cogs.commands.cmd_general", "cogs.commands.cmd_fun", "cogs.commands.cmd_data", "cogs.commands.cmd_nlp"
+    ]
+    lstn_extensions = ["cogs.listeners.lstn_error", "cogs.listeners.lstn_guild"]
+    extensions = list(itertools.chain(cmd_extensions, lstn_extensions))
+
+    # initiate bot and load extensions
     bot = MyBot(
         intents=intents,
         KEYS=KEYS,

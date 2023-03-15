@@ -21,9 +21,15 @@ class ErrorListeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: discord.Interaction, error):
+        """Listener for command errors
+
+        Args:
+            ctx (discord.Interaction): discord context
+            error (_type_): command error to handle
+        """
         # warn the user if they do not have the correct role
         if isinstance(error, commands.errors.CheckFailure):
-            logger.info(f"User {ctx.user} does not have the correct role.")
+            logger.info(f"User {ctx.user} does not have the correct role to execute {ctx.command.name}.")
             await ctx.response.send_message("You do not have the correct role for this command.")
 
         # warn the user if they enter an invalid command
