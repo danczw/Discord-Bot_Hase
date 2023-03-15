@@ -34,7 +34,7 @@ def main():
     )
 
     # initiate bot
-    MY_GUILD = discord.Object(id=KEYS["SERVER_ID"])
+    # MY_GUILD = discord.Object(id=KEYS["SERVER_ID"])
     class MyClient(discord.Client):
         def __init__(self, *, intents: discord.Intents):
             super().__init__(intents=intents)
@@ -51,7 +51,7 @@ def main():
         # Instead of specifying a guild to every command, we copy over our global commands instead.
         # By doing so, we don't have to wait up to an hour until they are shown to the end-user.
         # async def setup_hook(self):
-        #     # This copies the global commands over to your guild.
+            # This copies the global commands over to your guild.
         #     self.tree.copy_global_to(guild=MY_GUILD)
         #     await self.tree.sync(guild=MY_GUILD)
 
