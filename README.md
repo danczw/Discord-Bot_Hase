@@ -10,7 +10,7 @@
 
 <br>
 
-This bot is designed to provide a variety of useful features for users in a Discord server, and is built using the Python programming language. The BDB offers a range of capabilities, including basic user commands, fun user commands, a new user private message (PM) greeting, an owner notification when a new user joins the server, and the ability to talk to the bot just like a real human, thanks to the power of the GPT text generation tool.
+This bot is designed to provide a variety of useful features for users in a Discord server, and is built using the Python programming language. The Hase Bot offers a range of capabilities, including basic user commands, fun user commands, a new user private message (PM) greeting, an owner notification when a new user joins the server, and the ability to talk to the bot just like a real human, thanks to the power of the GPT text generation tool.
 
 <br>
 
@@ -45,10 +45,11 @@ The following commands fall under the category of BASIC:
 
 <br>
 
-In addition to these commands, the BDB also includes ~~several~~ event handlers that can be triggered by certain actions in the server. These handlers include:
+In addition to these commands, the bot also includes event handlers that can be triggered by certain actions in the server. These handlers include:
 
 - *on_ready:* Notifies the bot owner when the bot is ready to use.
 - *on_member_join:* This event handler notifies the server owner when a new user joins the server and greets the new user with a PM.
+- *on_member_remove:* This event handler notifies the server owner when a user leaves the server.
 
 <br>
 
