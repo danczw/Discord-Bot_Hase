@@ -19,9 +19,15 @@ class GeneralCommands(commands.Cog):
         """Commands cog with general commands for meta data, help, etc.
         """
         self.bot = bot
+        self.ctx_menu = app_commands.ContextMenu(
+            name="Show Join Date",
+            callback=self.show_join_date
+        )
+        self.bot.tree.add_command(self.ctx_menu)
 
+
+    # >>> GENERAL COMMANDS <<< #
     # TODO: add help command
-
 
     @app_commands.command(name="info", description="Show server meta data.")
     async def info(self, ctx: discord.Interaction) -> None:
@@ -71,3 +77,15 @@ class GeneralCommands(commands.Cog):
         ])
 
         return message
+
+
+    # >>> GENERAL CONTEXT MENUS <<< #
+    async def show_join_date(self, ctx: discord.Interaction, member: discord.Member) -> None:
+        """Shows the join date of a member.
+
+        Args:
+            ctx (discord.Interaction): discord context
+            member (discord.Member): member to show join date of
+        """
+        # The format_dt function formats the date time into a human readable representation in the official client
+        await ctx.response.send_message(f'{member} joined at {discord.utils.format_dt(member.joined_at)}')
