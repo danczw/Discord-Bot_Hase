@@ -2,16 +2,16 @@ import logging
 import sqlite3
 from sqlite3 import Error
 
+logger = logging.getLogger("discord")
+
 
 def open_connection(
         db_file_path: str,
-        logger: logging.Logger
     ) -> sqlite3.Connection:
     """open a database connection to a SQLite database
 
     Args:
         db_file_path (str): path to the database file
-        logger (logging.Logger): logger instance
 
     Returns:
         sqlite3.Connection: connection to the database

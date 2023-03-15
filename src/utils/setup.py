@@ -28,7 +28,7 @@ def log_setup(config_params: dict):
     return logger
 
 
-def keys_setup():
+def keys_setup() -> tuple:
     """Sets up API keys for discord bot
 
     Raises:
