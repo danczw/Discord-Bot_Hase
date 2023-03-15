@@ -1,6 +1,5 @@
 import logging
 
-import discord
 from discord.ext import commands
 
 logger = logging.getLogger(__name__)
@@ -20,12 +19,12 @@ class ErrorListeners(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: discord.Interaction, error):
+    async def on_command_error(self, ctx: commands.Context, error):
         """Listener for command errors
 
         Args:
-            ctx (discord.Interaction): discord context
-            error (_type_): command error to handle
+            ctx (commands.Context): discord context
+            error (Error): command error to handle
         """
         cmd_name = ctx.command.name if ctx.command else "unknwon"
         if cmd_name == "Unknown":
@@ -33,10 +32,10 @@ class ErrorListeners(commands.Cog):
 
         # warn the user if they do not have the correct role
         if isinstance(error, commands.errors.CheckFailure):
-            logger.info(f"User {ctx.user} does not have the correct role to execute {cmd_name}.")
-            await ctx.response.send_message("You do not have the correct role for this command.")
+            logger.info(f"User {ctx.author} does not have the correct role to execute {cmd_name}.")
+            await ctx.reply("You do not have the correct role for this command.")
 
         # warn the user if they enter an invalid command
         if isinstance(error, commands.errors.CommandNotFound):
-            logger.info(f"User {ctx.user} entered an invalid command.")
-            await ctx.response.send_message("Not a viable comment. Type '$help'")
+            logger.info(f"User {ctx.author} entered an invalid command.")
+            await ctx.reply("Not a viable comment. Type '/' to see a list of commands.")
