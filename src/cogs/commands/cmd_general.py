@@ -28,7 +28,21 @@ class GeneralCommands(commands.Cog):
 
 
     # >>> GENERAL COMMANDS <<< #
-    # TODO: add help command
+    @app_commands.command(name="help", description="Show help.")
+    async def help(self, ctx: discord.Interaction) -> None:
+        """Show help.
+
+        Args:
+            ctx (discord.Interaction): discord context
+        """
+        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_") # 
+        response = (
+            "Since introducing slash commands, the help command is no longer needed.\n"
+            "You can now use the `/` key to open the command menu and see all available commands."
+        )
+
+        await ctx.response.send_message(response)
+
 
     @app_commands.command(name="info", description="Show server meta data.")
     async def info(self, ctx: discord.Interaction) -> None:
