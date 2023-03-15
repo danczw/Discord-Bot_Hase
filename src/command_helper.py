@@ -3,10 +3,14 @@ import math
 import random
 from datetime import datetime, timedelta
 
+import discord
+import openai
 import requests
+from database.chat_db import add_message_to_chat_db, get_chat_history
+from database.db_helper import open_connection
 
 
-def get_server_info(ctx) -> str:
+def get_server_info(ctx: discord.Interaction) -> str:
     """creates a message with server info
 
     Args:
@@ -21,22 +25,23 @@ def get_server_info(ctx) -> str:
 
     # create message
     _line_break = "- - - -"
-    _server_name = f"**Server name:** {ctx.guild}"
-    _server_owner = f"**Server owner:** {ctx.guild.owner}:"
-    _member_count = f"**Members:** {ctx.guild.member_count}"
+    _server_name = f"**{ctx.guild}** Server"
+    _server_owner = f"Created on {ctx.guild.created_at.strftime('%d %b %Y')} by {ctx.guild.owner}:" # TODO: fix owner
+    _member_count = f"{ctx.guild.member_count} members"
 
     n_text_channels = len([channel for channel in ctx.guild.text_channels])
-    _text_channels = f"**Text Channels**: {n_text_channels}"
+    _text_channels = f"{n_text_channels} text channels"
 
     n_voice_channels = len([channel for channel in ctx.guild.voice_channels])
-    _voice_channels = f"**Voice Channels**: {n_voice_channels}"
+    _voice_channels = f"{n_voice_channels} voice channels"
 
     message = "\n".join([
-        _server_name, _server_owner,
+        _server_name,
+        _server_owner,
         _line_break,
         _member_count,
         _text_channels,
-        _voice_channels,
+        _voice_channels
     ])
 
     return message
@@ -397,3 +402,72 @@ def get_holiday_data(logger: logging.Logger, _country: str = "DE") -> str:
     except requests.exceptions.RequestException as error:
         logger.error(error)
         return "I can't find your country, are you sure it is a correct country code?"
+
+
+def get_chat_response(
+        ctx: discord.Interaction,
+        config_params: dict,
+        logger: logging.Logger,
+        message: str,
+        OPENAI_API_KEY: str
+    ) -> str:
+    """query openai api for chat response
+
+    Args:
+        ctx (discord.Interaction): interaction context
+        config_params (dict): config parameters
+        logger (logging.Logger): logger object
+        message (str): message to send to openai
+        OPENAI_API_KEY (str): openai api key
+
+    Returns:
+        str: chat response
+    """
+    # open chat db connection
+    chat_conn = open_connection(
+        db_file_path=config_params["chat_db_path"],
+        logger=logger
+    )
+
+    # add message to chat db
+    add_message_to_chat_db(
+        username=str(ctx.user),
+        message=message,
+        role="user",
+        connection=chat_conn,
+        logger=logger
+    )
+
+    # get chat history for user from db
+    chat_history = get_chat_history(
+        username=str(ctx.user),
+        timeframe=config_params["chat_history_timeframe"],
+        connection=chat_conn,
+        logger=logger
+    )
+
+    # create message including chat history
+    message_context = [{"role": hist[0], "content": hist[1]} for hist in chat_history]
+    # use GPT3 to create an answer
+    openai.api_key = OPENAI_API_KEY
+    response_oai = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=message_context,
+        max_tokens=500,
+        n=1,
+        # temperature=1,
+        # frequency_penalty=1.1
+    )
+    # extract response content
+    response = response_oai.choices[0].message.content
+
+    # add response to chat db
+    add_message_to_chat_db(
+        username=str(ctx.user),
+        message=response,
+        role="assistant",
+        connection=chat_conn,
+        logger=logger
+    )
+
+    return response

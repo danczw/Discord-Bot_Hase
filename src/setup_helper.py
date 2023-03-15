@@ -44,7 +44,8 @@ def keys_setup():
         "OPENAI_API_KEY": "",
         "OPENWEATHER_API_KEY": "",
         "BINGMAPS_API_KEY": "",
-        "OWNER_ID": ""
+        "BOT_OWNER_ID": "",
+        "SERVER_ID": ""
     }
 
     # check if running in docker container

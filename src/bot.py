@@ -2,11 +2,17 @@
 import random
 
 import discord
-import openai
 import yaml
-from command_helper import get_crypto_data, get_dice_results, get_holiday_data, get_server_info, get_weather_info
-from database.chat_db import add_message_to_chat_db, create_chat_db, get_chat_history
-from database.db_helper import open_connection
+from command_helper import (
+    get_chat_response,
+    get_crypto_data,
+    get_dice_results,
+    get_holiday_data,
+    get_server_info,
+    get_weather_info,
+)
+from database.chat_db import create_chat_db
+from discord import app_commands
 from discord.ext import commands
 from setup_helper import keys_setup, log_setup
 
@@ -28,75 +34,102 @@ def main():
     )
 
     # initiate bot
-    intents = discord.Intents.all()
-    # client = discord.Client(intents=intents) # TODO: needed?
-    intents.members = True
-    bot = commands.Bot(command_prefix="$", intents=intents)
+    # MY_GUILD = discord.Object(id=KEYS["SERVER_ID"])
+    class MyClient(discord.Client):
+        def __init__(self, *, intents: discord.Intents):
+            super().__init__(intents=intents)
+            # A CommandTree is a special type that holds all the application command
+            # state required to make it work. This is a separate class because it
+            # allows all the extra state to be opt-in.
+            # Whenever you want to work with application commands, your tree is used
+            # to store and work with them.
+            # Note: When using commands.Bot instead of discord.Client, the bot will
+            # maintain its own tree instead.
+            self.tree = app_commands.CommandTree(self)
 
+        # Synchronize the app commands to a single guild:
+        # Instead of specifying a guild to every command, we copy over our global commands instead.
+        # By doing so, we don't have to wait up to an hour until they are shown to the end-user.
+        # async def setup_hook(self):
+            # This copies the global commands over to your guild.
+        #     self.tree.copy_global_to(guild=MY_GUILD)
+        #     await self.tree.sync(guild=MY_GUILD)
 
-    # connect bot
-    @bot.event
+    intents = discord.Intents.default()
+    intents.message_content = True
+    client = MyClient(intents=intents)
+
+    @client.event
     async def on_ready():
         logger.debug(f"Running in docker: {is_docker}")
-        if bot.user:
-            logger.info(f"Logged in as {bot.user.name} - {bot.user.id}")
-        
+        if client.user:
+            logger.info(f"Logged in as {client.user.name} - {client.user.id}")
+
         # message server owner
-        owner = await bot.fetch_user(int(KEYS["OWNER_ID"]))
+        owner = await client.fetch_user(int(KEYS["BOT_OWNER_ID"]))
         await owner.send("Bot is online!")
 
 
     # ------------------------------ COMMANDS - BASIC -----------------------------
 
     # command - show meta data to user
-    @bot.command(name="info", help="Get meta data about the Server.")
-    async def info(ctx):
-        logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
+    @client.tree.command(name="info", description="Show server meta data.")
+    async def info(ctx: discord.Interaction) -> None:
+        logger.info(f"_{ctx.command}_ invoked by _{ctx.user}_ in _{ctx.guild}_")
         response = get_server_info(ctx)
 
         logger.info("Sending server info")
-        await ctx.send(response)
+        await ctx.response.send_message(response)
+
+
+    @client.tree.context_menu(name='Show Join Date')
+    async def show_join_date(interaction: discord.Interaction, member: discord.Member) -> None:
+        # The format_dt function formats the date time into a human readable representation in the official client
+        await interaction.response.send_message(f'{member} joined at {discord.utils.format_dt(member.joined_at)}')
 
 
     # ------------------------------- COMMANDS - DATA ------------------------------
 
     # command - get weather data for a location
-    @bot.command(name="weather", help="Get weather data for a location.")
-    async def weather(ctx, _location: str):
-        logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-        location = _location.title()
+    @client.tree.command(name="weather", description="Get weather data for a location.")
+    @app_commands.describe(location="The location to get weather data for, e.g. 'Berlin'.")
+    async def weather(ctx: discord.Interaction, location: str) -> None:
+        logger.info(f"_{ctx.command}_ invoked by _{ctx.user}_ in _{ctx.guild}_")
+        location = location.title()
         response = get_weather_info(location=location, KEYS=KEYS, logger=logger, config_params=config_params)
 
         logger.info(f"Sending weather data for {location}")
-        await ctx.send(response)
+        await ctx.response.send_message(response)
 
 
     # command - get crypto data for a coin
-    @bot.command(name="crypto", help="Get price for a crypto currency, e.g. '$crypto Bitcoin'.")
-    async def crypto(ctx, _coin: str):
-        logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-        response = get_crypto_data(_coin=_coin, logger=logger, config_params=config_params)
+    @client.tree.command(name="crypto", description="Get price for a crypto currency, e.g. '$crypto Bitcoin'.")
+    @app_commands.describe(coin="The crypto currency to get price data for, e.g. 'Bitcoin'.")
+    async def crypto(ctx: discord.Interaction, coin: str) -> None:
+        logger.info(f"_{ctx.command}_ invoked by _{ctx.user}_ in _{ctx.guild}_")
+        response = get_crypto_data(_coin=coin, logger=logger, config_params=config_params)
 
-        logger.info(f"Sending crypto data for {_coin}")
-        await ctx.send(response)
+        logger.info(f"Sending crypto data for {coin}")
+        await ctx.response.send_message(response)
 
 
     # command - get public holidays for a country
-    @bot.command(name="holidays", help="Get public holidays for a country, e.g. '$holidays DE'.")
-    async def holiday(ctx, _country: str = 'DE'):
-        logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-        response = get_holiday_data(_country=_country, logger=logger)
+    @client.tree.command(name="holidays", description="Get public holidays for a country, e.g. '$holidays DE'.")
+    @app_commands.describe(country="The country to get public holidays for, e.g. 'DE'.")
+    async def holiday(ctx: discord.Interaction, country: str = "DE") -> None:
+        logger.info(f"_{ctx.command}_ invoked by _{ctx.user}_ in _{ctx.guild}_")
+        response = get_holiday_data(_country=country, logger=logger)
 
-        logger.info(f"Sending holiday data for {_country}")
-        await ctx.send(response)
+        logger.info(f"Sending holiday data for {country}")
+        await ctx.response.send_message(response)
 
 
     # ------------------------------- COMMANDS - FUN ------------------------------
 
     # command - greet the user with a random greeting
-    @bot.command(name="hello", help="Says hello... or maybe not.")
-    async def hello(ctx):
-        logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
+    @client.tree.command(name="hello", description="Says hello... or maybe not.")
+    async def hello(ctx: discord.Interaction) -> None:
+        logger.info(f"_{ctx.command}_ invoked by _{ctx.user}_ in _{ctx.guild}_")
         quote = [
             "Whad up?", "Not you again...", "Nice!", "Was geht?", "How ya doin?",
             "Greetings, fellow traveler!", "I'm not the bot you are looking for. :disguised_face:",
@@ -104,107 +137,42 @@ def main():
         ]
 
         response = random.choice(quote)
-        await ctx.send(response)
+        await ctx.response.send_message(response)
 
 
     # command - roll a dice up to 10 times
-    @bot.command(
-        name="dice",
-        help="Simulates rolling a dice, e.g. '$dice 3'. Max rolls is 10"
-    )
-    async def dice(ctx, _rolls: int = 1) -> None:
-        logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-        response = get_dice_results(_rolls)
-        await ctx.send(response)
+    @client.tree.command(name="dice", description="Simulates rolling a dice, e.g. '$dice 3'. Max rolls is 10")
+    @app_commands.describe(rolls="The number of times to roll the dice, e.g. '3'.")
+    async def dice(ctx: discord.Interaction, rolls: int = 1) -> None:
+        logger.info(f"_{ctx.command}_ invoked by _{ctx.user}_ in _{ctx.guild}_")
+        response = get_dice_results(rolls)
+        await ctx.response.send_message(response)
 
 
     # ------------------------------- COMMANDS - GPT ------------------------------
 
-    # talk to the bot - let the bot write something for you using GPT3
-    @bot.command(
-        name="write",
-        help="Let the bot write something for you, e.g. '$write a poem'."
-    )
-    async def gpt_text(ctx, *, _message: str):
-        logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-        chat_conn = open_connection(
-            db_file_path=config_params["chat_db_path"],
-            logger=logger
+    # talk to the bot - let the bot write something for you using GPT
+    @client.tree.command(name="chat", description="Chat with totally not a robot.")
+    @app_commands.describe(message="Your message to the robot, e.g. 'a poem about...'.")
+    async def chat(ctx: discord.Interaction, message: str) -> None:
+        logger.info(f"_{ctx.command}_ invoked by _{ctx.user}_ in _{ctx.guild}_")
+        await ctx.response.defer()
+
+        response = get_chat_response(
+            ctx=ctx,
+            message=message,
+            logger=logger,
+            config_params=config_params,
+            OPENAI_API_KEY=KEYS["OPENAI_API_KEY"]
         )
 
-        # add message to chat db
-        add_message_to_chat_db(
-            username=str(ctx.author),
-            message=_message,
-            role="user",
-            connection=chat_conn,
-            logger=logger
-        )
-
-        # get chat history for user from db
-        chat_history = get_chat_history(
-            username=str(ctx.author),
-            timeframe=config_params["chat_history_timeframe"],
-            connection=chat_conn,
-            logger=logger
-        )
-        # create message including chat history
-        message_context = [{"role": hist[0], "content": hist[1]} for hist in chat_history]
-        # use GPT3 to create an answer
-        openai.api_key = KEYS["OPENAI_API_KEY"]
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=message_context,
-            max_tokens=500,
-            n=1,
-            # temperature=1,
-            # frequency_penalty=1.1
-        )
-
-        # extract response content
-        response_message = response.choices[0].message.content
-        # add response to chat db
-        add_message_to_chat_db(
-            username=str(ctx.author),
-            message=response_message,
-            role="assistant",
-            connection=chat_conn,
-            logger=logger
-        )
-
-        logger.info("Sending GPT3 text response.")
-        await ctx.send(response_message)
-
-
-    # code with the bot - let the bot write code for you using GPT3
-    @bot.command(
-        name="code",
-        help="Let the bot write code for you, e.g. '$code a function ...'."
-    )
-    async def gpt_code(ctx, *, _message):
-        logger.info(f"_{ctx.command}_ invoked by _{ctx.author}_ in _{ctx.guild}_")
-
-        # use GPT3 to create an answer
-        openai.api_key = KEYS["OPENAI_API_KEY"]
-        response = openai.Completion.create(
-            engine="code-cushman-001",
-            prompt=_message,
-            max_tokens=200,
-            n=1
-            # temperature=0.8,
-            # frequency_penalty=1.1
-        )
-
-        # TODO: format code response
-
-        logger.info("Sending GPT3 coding response.")
-        await ctx.send(":warning: - command still in beta:\n\n" + response.choices[0].text)
-
+        logger.info("Sending GPT text response.")
+        await ctx.followup.send(response)
 
     # --------------------------- EVENT HANDLING - USER  --------------------------
 
     # new user - greet user and notify owner
-    @bot.event
+    @client.event
     async def on_member_join(member):
         await member.send(
             f"""
@@ -220,22 +188,25 @@ def main():
     # ------------------------------- ERROR HANDLING ------------------------------
 
     # bot error handling
-    @bot.event
-    async def on_command_error(ctx, error):
+    @client.event
+    async def on_command_error(ctx: discord.Interaction, error):
         # warn the user if they do not have the correct role
         if isinstance(error, commands.errors.CheckFailure):
-            logger.info(f"User {ctx.author} does not have the correct role.")
+            logger.info(f"User {ctx.user} does not have the correct role.")
             await ctx.send("You do not have the correct role for this command.")
 
         # warn the user if they enter an invalid command
         if isinstance(error, commands.errors.CommandNotFound):
-            logger.info(f"User {ctx.author} entered an invalid command.")
+            logger.info(f"User {ctx.user} entered an invalid command.")
             await ctx.send("Not a viable comment. Type '$help'")
 
-    bot.run(KEYS["DISCORD_TOKEN"])
+
+    # ------------------------------- RUN BOT ------------------------------------
+
+    client.run(KEYS["DISCORD_TOKEN"])
 
 
-# ---------------------------------- RUN BOT  ---------------------------------
+# ---------------------------------- INIT APPLICATION  ---------------------------
 
 if __name__ == "__main__":
     main()
