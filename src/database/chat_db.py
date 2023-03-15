@@ -4,7 +4,7 @@ from sqlite3 import Error
 
 from database.helper_db import open_connection
 
-logger = logging.getLogger("discord")
+logger = logging.getLogger(__name__)
 
 
 def create_chat_db(

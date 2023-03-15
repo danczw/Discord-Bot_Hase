@@ -5,13 +5,14 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-logger = logging.getLogger("discord")
+logger = logging.getLogger(__name__)
 
 
 async def setup(bot: commands.Bot) -> None:
     """Setup function for general commands
     """
     await bot.add_cog(GeneralCommands(bot))
+    logger.debug("Commands Loaded: GeneralCommands")
 
 
 class GeneralCommands(commands.Cog):

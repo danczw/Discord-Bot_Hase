@@ -2,7 +2,7 @@ import logging
 import sqlite3
 from sqlite3 import Error
 
-logger = logging.getLogger("discord")
+logger = logging.getLogger(__name__)
 
 
 def open_connection(

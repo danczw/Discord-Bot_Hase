@@ -20,7 +20,11 @@ def main():
     intents = discord.Intents.default()
     intents.message_content = True
     intents.members = True
-    extensions = ["cogs.commands.general", "cogs.commands.fun", "cogs.commands.data", "cogs.commands.nlp"]
+    extensions = [
+        "cogs.commands.cmd_general", "cogs.commands.cmd_fun", "cogs.commands.cmd_data",
+        "cogs.commands.cmd_nlp", "cogs.listeners.lstn_error"
+    ]
+
     bot = MyBot(
         intents=intents,
         KEYS=KEYS,
