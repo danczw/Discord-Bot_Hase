@@ -34,7 +34,7 @@ class GuildListeners(commands.Cog):
                 "Type '/help' in any channel to find available commands."
             )
         )
-        await member.guild.owner.send(f"{member} just joined {member.guild.name}.")
+        await member.guild.owner.send(f"{member} just joined {member.guild.name}.") # type: ignore
 
 
     @commands.Cog.listener()
@@ -45,4 +45,4 @@ class GuildListeners(commands.Cog):
         Args:
             member (discord.Member): member that left the guild
         """
-        await member.guild.owner.send(f"{member} just left {member.guild.name}.")
+        await member.guild.owner.send(f"{member} just left {member.guild.name}.") # type: ignore

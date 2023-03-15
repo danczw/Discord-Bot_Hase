@@ -1,4 +1,7 @@
+import logging
 import math
+
+import discord
 
 
 def millify(n: float) -> str:
@@ -38,3 +41,22 @@ def up_down_emoji(_value: float) -> str:
         return ":chart_with_downwards_trend:"
     else:
         return ":arrow_right:"
+
+
+def extract_command_name(ctx: discord.Interaction, logger: logging.Logger):
+    """Extracts invoked command name and logs command
+
+    Args:
+        ctx (discord.Interaction): discord context
+        logger (logging.Logger): log handler object
+
+    Returns:
+        str: invoked command name
+    """
+    command_name = ctx.command.name if ctx.command else "unknwon"
+    logger.info(f"_{command_name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_")
+
+    if command_name == "Unknown":
+        logger.error("Unknown command invoked")
+
+    return command_name
