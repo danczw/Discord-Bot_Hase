@@ -1,11 +1,7 @@
-<p align="center">
-# Hase - Discord Bot
-</p>
+<p align="center"> <font size="5"> <b> Hase - Discord Bot </b> </font> </p>
 
 <p align="center">
-<a href="https://github.com/danczw/discord_assistant_bot/actions">
-<img src="https://github.com/danczw/discord_assistant_bot/workflows/Docker/badge.svg?branch=master">
-</a>
+<a href="https://github.com/danczw/discord_assistant_bot/actions"><img src="https://github.com/danczw/discord_assistant_bot/workflows/docker-publish.yml/badge.svg?branch=main"></a>
 </p>
 
 <br>
