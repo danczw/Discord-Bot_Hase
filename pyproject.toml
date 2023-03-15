@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "hase_discord_bot"
+name = "hase_discbot"
 version = "2.0.0"
 description = "Basic Python based discord bot with various features."
 authors = ["danczw <dev.dc@pm.me>"]
