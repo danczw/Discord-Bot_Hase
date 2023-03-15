@@ -45,7 +45,9 @@ class MyBot(commands.Bot):
         # copy in the global commands
         self.tree.copy_global_to(guild=guild)
         # syncing to guild
-        await self.tree.sync(guild=guild)
+        # await self.tree.sync(guild=guild)
+        # syncing to global
+        await self.tree.sync()
 
     async def on_ready(self):
         """Hook to run after bot is ready, including messaging server owner.
