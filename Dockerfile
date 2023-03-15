@@ -45,6 +45,6 @@ COPY ./src/ ./
 COPY ./logs/ ./logs/
 COPY ./conf/ ./conf/
 COPY ./data/ ./data/
-RUN chmod 755 bot.py
+RUN chmod 755 main.py
 
-CMD ["python", "./bot.py"]
+CMD ["python", "./main.py"]

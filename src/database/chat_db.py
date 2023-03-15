@@ -2,33 +2,31 @@ import logging
 import sqlite3
 from sqlite3 import Error
 
-from database.db_helper import open_connection
+from database.helper_db import open_connection
+
+logger = logging.getLogger(__name__)
 
 
 def create_chat_db(
         db_file_path: str,
-        logger: logging.Logger
     ):
     """create a SQLite database and relevant tables for storing chat data
 
     Args:
         db_file_path (str): path to the database file
-        logger (logging.Logger): logger instance
     """
-    conn = open_connection(db_file_path=db_file_path, logger=logger)
-    create_chat_table(connection=conn, logger=logger)
+    conn = open_connection(db_file_path=db_file_path)
+    create_chat_table(connection=conn)
     conn.close()
 
 
 def create_chat_table(
         connection: sqlite3.Connection,
-        logger: logging.Logger
     ):
     """create a table to store GPT chat data
 
     Args:
         conn (sqlite3.Connection): connection to the database
-        logger (logging.Logger): logger instance
     """
     sql_create_chat_table = """ CREATE TABLE IF NOT EXISTS chat (
                                         id integer PRIMARY KEY,
@@ -51,7 +49,6 @@ def add_message_to_chat_db(
         message: str,
         role: str,
         connection: sqlite3.Connection,
-        logger: logging.Logger
     ):
     """add a user message to the chat database
 
@@ -60,7 +57,6 @@ def add_message_to_chat_db(
         username (str): username of the user this conversation is with
         role (str): role who created the message text, either "user" or "assistant" for the model
         connection (sqlite3.Connection): connection to the chat database
-        logger (logging.Logger): logger instance
     """
     sql_query = "INSERT INTO chat(author,message,role,timestamp) VALUES(?,?,?,datetime('now'))"
 
@@ -76,7 +72,6 @@ def add_message_to_chat_db(
 def get_chat_history(
         username: str,
         connection: sqlite3.Connection,
-        logger: logging.Logger,
         timeframe: float = 2
     ) -> list:
     """get the chat history of a user
@@ -84,7 +79,6 @@ def get_chat_history(
     Args:
         username (str): username of the user this conversation is with
         connection (sqlite3.Connection): connection to the chat database
-        logger (logging.Logger): logger instance
         timeframe (str): timeframe to get the chat history for in hours. Defaults to 2 hours.
 
     Returns:

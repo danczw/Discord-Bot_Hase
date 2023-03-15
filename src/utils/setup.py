@@ -22,13 +22,13 @@ def log_setup(config_params: dict):
 
     # include discord lib logging and set level
     discord.utils.setup_logging(handler=handler, formatter=formatter, level=logging.DEBUG)
-    logger = logging.getLogger("discord")
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
     return logger
 
 
-def keys_setup():
+def keys_setup() -> tuple:
     """Sets up API keys for discord bot
 
     Raises:
