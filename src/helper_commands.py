@@ -7,7 +7,7 @@ import discord
 import openai
 import requests
 from database.chat_db import add_message_to_chat_db, get_chat_history
-from database.db_helper import open_connection
+from database.helper_db import open_connection
 
 
 def get_server_info(ctx: discord.Interaction) -> str:

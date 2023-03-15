@@ -2,7 +2,7 @@ import logging
 import sqlite3
 from sqlite3 import Error
 
-from database.db_helper import open_connection
+from database.helper_db import open_connection
 
 
 def create_chat_db(

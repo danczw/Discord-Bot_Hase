@@ -14,7 +14,7 @@ from command_helper import (
 from database.chat_db import create_chat_db
 from discord import app_commands
 from discord.ext import commands
-from setup_helper import keys_setup, log_setup
+from helper_setup import keys_setup, log_setup
 
 
 def main():
