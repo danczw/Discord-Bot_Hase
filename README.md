@@ -72,7 +72,7 @@ Logging is configured to write to `logs/discord.log` for debugging purposes. Dep
 
 ## Deployment:
 
-For deployment via Azure Container Instances, following steps are required.
+For deployment via Docker Container, following steps are required.
 
 ```bash
 

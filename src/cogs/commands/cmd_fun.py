@@ -4,6 +4,7 @@ import random
 import discord
 from discord import app_commands
 from discord.ext import commands
+from utils.helpers import extract_command_name
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,8 @@ class FunCommands(commands.Cog):
             ctx (discord.Interaction): discord context
             rolls (int, optional): number of dice rolls. Defaults to 1.
         """
-        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_")
+        _ = extract_command_name(ctx, logger)
+
         response = self.helper_get_dice_results(rolls)
         await ctx.response.send_message(response)
 
@@ -58,7 +60,8 @@ class FunCommands(commands.Cog):
         Args:
             ctx (discord.Interaction): discord context
         """
-        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_")
+        _ = extract_command_name(ctx, logger)
+
         quote = [
             "Whad up?", "Not you again...", "Nice!", "Was geht?", "How ya doin?",
             "Greetings, fellow traveler!", "I'm not the bot you are looking for. :disguised_face:",

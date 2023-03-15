@@ -5,7 +5,7 @@ import discord
 import requests
 from discord import app_commands
 from discord.ext import commands
-from utils.helpers import millify, up_down_emoji
+from utils.helpers import extract_command_name, millify, up_down_emoji
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +36,13 @@ class DataCommands(commands.Cog):
             ctx (discord.Interaction): discord context
             coin (str): crypto currency name
         """
-        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_")
+        _ = extract_command_name(ctx, logger)
+
         await ctx.response.defer(thinking=True)
         response = self.helper_get_crypto_data(_coin=coin)
 
         logger.info(f"Sending crypto data for {coin}")
-        await ctx.followup.send(response)
+        await ctx.followup.send(response, ephemeral=True if ctx.guild else False)
 
     def helper_get_crypto_data(self, _coin: str) -> str:
         """Gets crypto data from coingecko API
@@ -150,12 +151,13 @@ class DataCommands(commands.Cog):
             ctx (discord.Interaction): interaction context
             country (str, optional): country code for holiday data. Defaults to 'DE'.
         """
-        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_")
+        _ = extract_command_name(ctx, logger)
+
         await ctx.response.defer(thinking=True)
         response = self.helper_get_holiday_data(_country=country)
 
         logger.info(f"Sending holiday data for {country}")
-        await ctx.followup.send(response)
+        await ctx.followup.send(response, ephemeral=True if ctx.guild else False)
 
 
     def helper_get_holiday_data(self, _country: str = "DE") -> str:
@@ -207,13 +209,20 @@ class DataCommands(commands.Cog):
     @app_commands.command(name="weather", description="Get weather data for a location.")
     @app_commands.describe(location="The location to get weather data for, e.g. 'Berlin'.")
     async def weather(self, ctx: discord.Interaction, location: str) -> None:
-        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_")
+        """Get weather data for a location.
+
+        Args:
+            ctx (discord.Interaction): interaction context
+            location (str): location name of weather conditions request
+        """
+        _ = extract_command_name(ctx, logger)
+
         await ctx.response.defer(thinking=True)
         location = location.title()
         response = self.helper_get_weather_info(location=location)
 
         logger.info(f"Sending weather data for {location}")
-        await ctx.followup.send(response)
+        await ctx.followup.send(response, ephemeral=True if ctx.guild else False)
 
     def helper_get_weather_info(self, location: str) -> str:
         """Gets weather info for a location and creates a message

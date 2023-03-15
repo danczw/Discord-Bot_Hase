@@ -27,9 +27,13 @@ class ErrorListeners(commands.Cog):
             ctx (discord.Interaction): discord context
             error (_type_): command error to handle
         """
+        cmd_name = ctx.command.name if ctx.command else "unknwon"
+        if cmd_name == "Unknown":
+            logger.error("Unknown command invoked")
+
         # warn the user if they do not have the correct role
         if isinstance(error, commands.errors.CheckFailure):
-            logger.info(f"User {ctx.user} does not have the correct role to execute {ctx.command.name}.")
+            logger.info(f"User {ctx.user} does not have the correct role to execute {cmd_name}.")
             await ctx.response.send_message("You do not have the correct role for this command.")
 
         # warn the user if they enter an invalid command

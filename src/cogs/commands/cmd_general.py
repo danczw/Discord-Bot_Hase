@@ -4,6 +4,7 @@ import logging
 import discord
 from discord import app_commands
 from discord.ext import commands
+from utils.helpers import extract_command_name
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +36,14 @@ class GeneralCommands(commands.Cog):
         Args:
             ctx (discord.Interaction): discord context
         """
-        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_") # 
+        _ = extract_command_name(ctx, logger)
+
         response = (
             "Since introducing slash commands, the help command is no longer needed.\n"
             "You can now use the `/` key to open the command menu and see all available commands."
         )
 
-        await ctx.response.send_message(response)
+        await ctx.response.send_message(response, ephemeral=True if ctx.guild else False)
 
 
     @app_commands.command(name="info", description="Show server meta data.")
@@ -51,11 +53,12 @@ class GeneralCommands(commands.Cog):
         Args:
             ctx (discord.Interaction): discord context
         """
-        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_")
-        response = self.helper_get_server_info(ctx)
+        _ = extract_command_name(ctx, logger)
 
+        response = self.helper_get_server_info(ctx)
         logger.info("Sending server info")
-        await ctx.response.send_message(response)
+
+        await ctx.response.send_message(response, ephemeral=True if ctx.guild else False)
 
     def helper_get_server_info(self, ctx: discord.Interaction) -> str:
         """creates a message with server info
@@ -102,5 +105,8 @@ class GeneralCommands(commands.Cog):
             ctx (discord.Interaction): discord context
             member (discord.Member): member to show join date of
         """
+        _ = extract_command_name(ctx, logger)
+
+        response = f'{member} joined at {discord.utils.format_dt(member.joined_at) if member.joined_at else "unknown"}'
         # The format_dt function formats the date time into a human readable representation in the official client
-        await ctx.response.send_message(f'{member} joined at {discord.utils.format_dt(member.joined_at)}')
+        await ctx.response.send_message(response, ephemeral=True if ctx.guild else False)

@@ -6,6 +6,7 @@ from database.chat_db import add_message_to_chat_db, get_chat_history
 from database.helper_db import open_connection
 from discord import app_commands
 from discord.ext import commands
+from utils.helpers import extract_command_name
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,8 @@ class NlpCommands(commands.Cog):
             ctx (discord.Interaction): discord context
             message (str): message to send to robot
         """
-        logger.info(f"_{ctx.command.name}_ invoked by _{ctx.user}_ in _{ctx.channel}_ of _{ctx.guild}_")
+        _ = extract_command_name(ctx, logger)
+
         await ctx.response.defer(thinking=True)
 
         response = self.helper_get_chat_response(
@@ -93,7 +95,7 @@ class NlpCommands(commands.Cog):
             # frequency_penalty=1.1
         )
         # extract response content
-        response = response_oai.choices[0].message.content
+        response = response_oai.choices[0].message.content # type: ignore
 
         # add response to chat db
         add_message_to_chat_db(

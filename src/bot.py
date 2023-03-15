@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 import discord
 from discord.ext import commands
@@ -55,4 +56,4 @@ class MyBot(commands.Bot):
 
         # message server owner
         owner = await self.fetch_user(int(self.KEYS["BOT_OWNER_ID"]))
-        await owner.send("Bot is online!")
+        await owner.send(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Bot is ready!")
