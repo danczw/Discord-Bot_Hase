@@ -27,7 +27,7 @@ def main():
     cmd_extensions = [
         "cogs.commands.cmd_general", "cogs.commands.cmd_fun", "cogs.commands.cmd_data", "cogs.commands.cmd_nlp"
     ]
-    lstn_extensions = ["cogs.listeners.lstn_error", "cogs.listeners.lstn_guild"]
+    lstn_extensions = ["cogs.listeners.lstn_error", "cogs.listeners.lstn_guild",] # "cogs.listeners.lstn_msg"
     extensions = list(itertools.chain(cmd_extensions, lstn_extensions))
 
     # initiate bot and load extensions

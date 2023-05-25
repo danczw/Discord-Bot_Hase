@@ -40,10 +40,15 @@ class NlpCommands(commands.Cog):
 
         await ctx.response.defer(thinking=True)
 
-        response = self.helper_get_chat_response(
-            ctx=ctx,
-            message=message,
-        )
+        try:
+            response = self.helper_get_chat_response(
+                ctx=ctx,
+                message=message,
+            )
+        except Exception as e:
+            logger.error(f"Error with OpenAI API: {e}")
+            await ctx.followup.send("OpenAI's robots seem to be very tired. :zzz: Please try again later.")
+            return
 
         logger.info("Sending GPT text response.")
         await ctx.followup.send(response)
