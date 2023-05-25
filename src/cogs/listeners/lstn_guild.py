@@ -18,6 +18,7 @@ class GuildListeners(commands.Cog):
         """Listener for guild related events
         """
         self.bot = bot
+        logger.debug(f"Listeners: {self.get_listeners()}")
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
