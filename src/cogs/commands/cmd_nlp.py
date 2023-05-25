@@ -89,10 +89,11 @@ class NlpCommands(commands.Cog):
         response_oai = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=message_context,
-            max_tokens=500,
+            max_tokens=800,
             n=1,
             # temperature=1,
             # frequency_penalty=1.1
+            request_timeout=90, # experimental, undocumented parameter
         )
         # extract response content
         response = response_oai.choices[0].message.content # type: ignore
