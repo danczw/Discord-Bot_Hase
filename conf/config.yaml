@@ -7,4 +7,4 @@ temperature_rounding: 1
 currency_perc_rounding: 1
 
 # timeframe for message context to be used for the GPT model in hours
-chat_history_timeframe: 1
+chat_history_timeframe: 0.5
