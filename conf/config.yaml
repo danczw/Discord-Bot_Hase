@@ -6,5 +6,12 @@ chat_db_path: "./data/chat.db"
 temperature_rounding: 1
 currency_perc_rounding: 1
 
+# Open AI
+oai_model: "gpt-4"
+oai_timeout: 60
+oai_max_tokens: 800
+
 # timeframe for message context to be used for the GPT model in hours
-chat_history_timeframe: 0.5
+chat_history_timeframe: 1
+# max context length for the GPT model in nr of messages
+chat_history_ctx_length: 5

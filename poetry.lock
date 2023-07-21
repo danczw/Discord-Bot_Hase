@@ -1,6 +1,6 @@
 [[package]]
 name = "aiohttp"
-version = "3.8.4"
+version = "3.8.5"
 description = "Async http client/server framework (asyncio)"
 category = "main"
 optional = false
@@ -62,7 +62,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "charset-normalizer"
-version = "3.1.0"
+version = "3.2.0"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
 optional = false
@@ -78,7 +78,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7
 
 [[package]]
 name = "discord.py"
-version = "2.2.3"
+version = "2.3.1"
 description = "A Python wrapper for the Discord API"
 category = "main"
 optional = false
@@ -95,11 +95,11 @@ voice = ["PyNaCl (>=1.3.0,<1.6)"]
 
 [[package]]
 name = "frozenlist"
-version = "1.3.3"
+version = "1.4.0"
 description = "A list-like structure which implements collections.abc.MutableSequence"
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [[package]]
 name = "idna"
@@ -119,7 +119,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "openai"
-version = "0.27.7"
+version = "0.27.8"
 description = "Python client library for the OpenAI API"
 category = "main"
 optional = false
@@ -149,7 +149,7 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "pyyaml"
-version = "6.0"
+version = "6.0.1"
 description = "YAML parser and emitter for Python"
 category = "main"
 optional = false
@@ -200,7 +200,7 @@ telegram = ["requests"]
 
 [[package]]
 name = "urllib3"
-version = "2.0.2"
+version = "2.0.4"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
