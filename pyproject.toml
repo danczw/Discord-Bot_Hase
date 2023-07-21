@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hase_discbot"
-version = "2.0.1"
+version = "2.0.2"
 description = "Basic Python based discord bot with various features."
 authors = ["danczw <dev.dc@pm.me>"]
 license = "Apache License 2.0"
