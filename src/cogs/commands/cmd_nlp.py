@@ -12,20 +12,17 @@ logger = logging.getLogger(__name__)
 
 
 async def setup(bot: commands.Bot) -> None:
-    """Setup function for fun commands
-    """
+    """Setup function for fun commands"""
     await bot.add_cog(NlpCommands(bot))
     logger.debug("Commands Loaded: NlpCommands")
 
 
 class NlpCommands(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
-        """Commands cog with NLP based commands such as chatting with GPT, etc.
-        """
+        """Commands cog with NLP based commands such as chatting with GPT, etc."""
         self.bot = bot
-        self.config_params = bot.config_params # type: ignore
-        self.KEYS = bot.KEYS # type: ignore
-
+        self.config_params = bot.config_params  # type: ignore
+        self.KEYS = bot.KEYS  # type: ignore
 
     @app_commands.command(name="chat", description="Chat with totally not a robot.")
     @app_commands.describe(message="Your message to the robot, e.g. 'A poem about...'.")
@@ -54,10 +51,10 @@ class NlpCommands(commands.Cog):
         await ctx.followup.send(response)
 
     def helper_get_chat_response(
-            self,
-            ctx: discord.Interaction,
-            message: str,
-        ) -> str:
+        self,
+        ctx: discord.Interaction,
+        message: str,
+    ) -> str:
         """query openai api for chat response
 
         Args:
@@ -92,16 +89,16 @@ class NlpCommands(commands.Cog):
         # use GPT3 to create an answer
         openai.api_key = self.KEYS["OPENAI_API_KEY"]
         response_oai = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=message_context,
             max_tokens=800,
             n=1,
             # temperature=1,
             # frequency_penalty=1.1
-            request_timeout=90, # experimental, undocumented parameter
+            request_timeout=90,  # experimental, undocumented parameter
         )
         # extract response content
-        response = response_oai.choices[0].message.content # type: ignore
+        response = response_oai.choices[0].message.content  # type: ignore
 
         # add response to chat db
         add_message_to_chat_db(
