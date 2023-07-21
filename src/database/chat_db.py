@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 def create_chat_db(
-        db_file_path: str,
-    ):
+    db_file_path: str,
+):
     """create a SQLite database and relevant tables for storing chat data
 
     Args:
@@ -21,8 +21,8 @@ def create_chat_db(
 
 
 def create_chat_table(
-        connection: sqlite3.Connection,
-    ):
+    connection: sqlite3.Connection,
+):
     """create a table to store GPT chat data
 
     Args:
@@ -45,11 +45,11 @@ def create_chat_table(
 
 
 def add_message_to_chat_db(
-        username: str,
-        message: str,
-        role: str,
-        connection: sqlite3.Connection,
-    ):
+    username: str,
+    message: str,
+    role: str,
+    connection: sqlite3.Connection,
+):
     """add a user message to the chat database
 
     Args:
@@ -69,11 +69,7 @@ def add_message_to_chat_db(
         logger.error(f"Message for {username}:{role} not added to chat db: {e}.")
 
 
-def get_chat_history(
-        username: str,
-        connection: sqlite3.Connection,
-        timeframe: float = 2
-    ) -> list:
+def get_chat_history(username: str, connection: sqlite3.Connection, timeframe: float = 2) -> list:
     """get the chat history of a user
 
     Args:
@@ -85,13 +81,11 @@ def get_chat_history(
         list: list of tuples containing the chat history
     """
     logger.info(f"Retrieving message hist for {username} from chat db.")
-    sql_query = (
-        f"""SELECT role, message
+    sql_query = f"""SELECT role, message
             FROM chat
             WHERE author = '{username}' AND timestamp > datetime('now', '-{timeframe} hours')
             ORDER BY timestamp ASC;
         """
-    )
 
     try:
         c = connection.cursor()
