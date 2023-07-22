@@ -219,7 +219,10 @@ class DataCommands(commands.Cog):
             response = self.helper_get_weather_info(location=location)
         except Exception as error:
             logger.error(f"Error in weather command: {error}")
-            await ctx.response.send_message("I've run out of carrots, please try again later. :carrot: :no_entry_sign:")
+            await ctx.followup.send(
+                "I've run out of carrots, please try again later. :carrot: :no_entry_sign:",
+                ephemeral=True if ctx.guild else False,
+            )
             return
 
         logger.info(f"Sending weather data for {location}")
@@ -305,6 +308,7 @@ class DataCommands(commands.Cog):
         decimal_round = self.config_params["temperature_rounding"]
 
         # current weather
+        curr_date = datetime.fromtimestamp(weather_json["current"]["dt"]).strftime("%d.%m.%Y")
         curr_condition = weather_json["current"]["weather"][0]["description"]
         curr_temp = round(weather_json["current"]["temp"], decimal_round)
         curr_temp_feels_like = round(weather_json["current"]["feels_like"], decimal_round)
@@ -341,7 +345,7 @@ class DataCommands(commands.Cog):
 
         # create bot response message
         message = (
-            f"\n**Weather for {location}**\n"
+            f"\n**Weather for {location}** - _{curr_date}_\n"
             f"{curr_condition_icon} Currently {curr_condition} with {curr_temp}°C, \n"
             f"feels like {curr_temp_feels_like}°C and {curr_humidity}% humidity.\n\n"
             f"{today_condition_icon} **Today: {today_condition}**\n"
