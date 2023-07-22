@@ -1,12 +1,17 @@
-<p align="center"> <font size="8"> <b> Hase - Discord Bot </b> </font> </p>
+<div align="center">
 
-<p align="center">
-<a href="https://github.com/danczw/hase_discbot/actions"><img src="https://github.com/danczw/hase_discbot/workflows/Docker/badge.svg"></a>
-</p>
+<font size="8"> <b> Hase - Discord Bot </b> </font>
+
+<img src="./assets/hase-bot.png" width="200" height="200">
 
 <br>
 
-**Hase** is a feature-rich Discord bot built using Python programming language. It offers various functionalities to enhance the user experience within a Discord server. From basic user commands to fun interactions, Hase aims to bring joy and utility to your server members. The bot leverages the power of generative AI to provide image generation capabilities, making it even more intriguing to chat with.
+<a href="https://github.com/danczw/hase_discbot/actions"><img src="https://github.com/danczw/hase_discbot/workflows/Docker/badge.svg"></a>
+</div>
+
+<br>
+
+**Hase** is a feature-rich Discord bot built using Python programming language. It offers various functionalities to enhance the user experience within a Discord server. From basic user commands to fun interactions, Hase aims to bring joy and utility to your server members. 🐰 The bot leverages the power of generative AI to provide image generation capabilities, making it even more intriguing to chat with.
 
 It also helps server owners to manage their servers by providing notifications when a new user joins or leaves the server. The bot also greets new users with a private message (PM) to make them feel welcome.
 
@@ -39,7 +44,7 @@ The following commands fall under the category of BASIC:
 - */dice \_n rolls\_:* Roll a six-sided dice a specified number of times and see the results.
 
 ### GEN-AI commands
-- */chat \_message\_:* Engage in a conversation with the bot on any topic using the OpenAI GPT API.
+- */chat \_message\_:* Engage in a conversation with the bot on any topic using the OpenAI GPT API. 💬
 - */img \_description\_:* Generate an image based on a description using the OpenAI image generation API.
 
 <br>
