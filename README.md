@@ -18,7 +18,7 @@ It also helps server owners to manage their servers by providing notifications w
 
 ## Bot commands
 
-The bot offers a range of commands, which are organized into different categories for easy navigation. These categories include GENERAL, FUN, DATA and GEN-AI. `_abc_` shows a argument required by the command.
+The bot offers a range of commands, which are organized into different categories for easy navigation. These categories include GENERAL, FUN, DATA and GEN-AI. *\_abc\_* shows a argument required by the command.
 
 Here are the commands that fall under each category:
 
@@ -41,6 +41,10 @@ The following commands fall under the category of BASIC:
 ### GEN-AI commands
 - */chat \_message\_:* Engage in a conversation with the bot on any topic using the OpenAI GPT API.
 - */img \_description\_:* Generate an image based on a description using the OpenAI image generation API.
+
+<br>
+
+------------
 
 <br>
 
