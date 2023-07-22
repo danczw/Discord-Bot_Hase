@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import discord
 import requests
+from dateutil import tz
 from discord import app_commands
 from discord.ext import commands
 from utils.helpers import extract_command_name, millify, up_down_emoji
@@ -299,7 +300,6 @@ class DataCommands(commands.Cog):
             str: message displayed to user with weather conditions for a location
         """
         decimal_round = self.config_params["temperature_rounding"]
-        daylightsaving = 1
 
         # current weather
         curr_condition = weather_json["current"]["weather"][0]["description"]
@@ -311,27 +311,23 @@ class DataCommands(commands.Cog):
         today_condition = weather_json["daily"][0]["weather"][0]["description"]
         today_temp_max = round(weather_json["daily"][0]["temp"]["max"], decimal_round)
         today_temp_min = round(weather_json["daily"][0]["temp"]["min"], decimal_round)
-        today_sunrise = (
-            datetime.fromtimestamp(weather_json["daily"][0]["sunrise"] + weather_json["timezone_offset"])
-            - timedelta(hours=daylightsaving)
-        ).strftime("%H:%M")
-        today_sunset = (
-            datetime.fromtimestamp(weather_json["daily"][0]["sunset"] + weather_json["timezone_offset"])
-            - timedelta(hours=daylightsaving)
-        ).strftime("%H:%M")
+        today_sunrise = self.helper_convert_timezone(
+            timestamp=weather_json["daily"][0]["sunrise"], to_zone_name=weather_json["timezone"]
+        )
+        today_sunset = self.helper_convert_timezone(
+            timestamp=weather_json["daily"][0]["sunset"], to_zone_name=weather_json["timezone"]
+        )
 
         # tomorrow weather
         tomorrow_condition = weather_json["daily"][1]["weather"][0]["description"]
         tomorrow_temp_max = round(weather_json["daily"][1]["temp"]["max"], decimal_round)
         tomorrow_temp_min = round(weather_json["daily"][1]["temp"]["min"], decimal_round)
-        tomorrow_sunrise = (
-            datetime.fromtimestamp(weather_json["daily"][1]["sunrise"] + weather_json["timezone_offset"])
-            - timedelta(hours=daylightsaving)
-        ).strftime("%H:%M")
-        tomorrow_sunset = (
-            datetime.fromtimestamp(weather_json["daily"][1]["sunset"] + weather_json["timezone_offset"])
-            - timedelta(hours=daylightsaving)
-        ).strftime("%H:%M")
+        tomorrow_sunrise = self.helper_convert_timezone(
+            timestamp=weather_json["daily"][1]["sunrise"], to_zone_name=weather_json["timezone"]
+        )
+        tomorrow_sunset = self.helper_convert_timezone(
+            timestamp=weather_json["daily"][1]["sunset"], to_zone_name=weather_json["timezone"]
+        )
 
         # condition to icon
         curr_condition_icon = self.helper_condition_to_icon(condition_id=weather_json["current"]["weather"][0]["id"])
@@ -386,3 +382,23 @@ class DataCommands(commands.Cog):
             icon_str = ":question:"
 
         return icon_str
+
+    def helper_convert_timezone(self, timestamp: int, to_zone_name: str, from_zone_name: str = "UTC") -> str:
+        """converts timestamp from one timezone to another
+
+        Args:
+            timestamp (int): timestamp to convert
+            to_zone_name (str): timezone to convert to
+            from_zone_name (str, optional): timezone to convert from. Defaults to "UTC".
+
+        Returns:
+            str: converted timestamp in format HH:MM
+        """
+        from_zone = tz.gettz(from_zone_name)
+        to_zone = tz.gettz(to_zone_name)
+
+        utc = datetime.utcfromtimestamp(timestamp)
+        utc = utc.replace(tzinfo=from_zone)
+        converted = utc.astimezone(to_zone)
+
+        return converted.strftime("%H:%M")
