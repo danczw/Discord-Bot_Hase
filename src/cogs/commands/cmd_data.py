@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import discord
 import requests
@@ -52,6 +52,8 @@ class DataCommands(commands.Cog):
 
         Returns:
             str: Message with crypto data or error message
+
+        TODO: update to search by coin symbol
         """
 
         # define variables for API call
@@ -213,7 +215,12 @@ class DataCommands(commands.Cog):
 
         await ctx.response.defer(thinking=True)
         location = location.title()
-        response = self.helper_get_weather_info(location=location)
+        try:
+            response = self.helper_get_weather_info(location=location)
+        except Exception as error:
+            logger.error(f"Error in weather command: {error}")
+            await ctx.response.send_message("I've run out of carrots, please try again later. :carrot: :no_entry_sign:")
+            return
 
         logger.info(f"Sending weather data for {location}")
         await ctx.followup.send(response, ephemeral=True if ctx.guild else False)
