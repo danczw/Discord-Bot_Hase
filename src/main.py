@@ -16,7 +16,9 @@ def main():
     # load environment variables depending on local dev or prod env
     KEYS, is_docker = keys_setup()
     # setup database to store chat history for GPT
-    create_chat_db(db_file_path=config_params["chat_db_path"],)
+    create_chat_db(
+        db_file_path=config_params["chat_db_path"],
+    )
 
     # initiate bot
     intents = discord.Intents.default()
@@ -25,23 +27,26 @@ def main():
 
     # define extensions to be loaded
     cmd_extensions = [
-        "cogs.commands.cmd_general", "cogs.commands.cmd_fun", "cogs.commands.cmd_data", "cogs.commands.cmd_nlp"
+        "cogs.commands.cmd_general",
+        "cogs.commands.cmd_fun",
+        "cogs.commands.cmd_data",
+        "cogs.commands.cmd_genai",
     ]
-    lstn_extensions = ["cogs.listeners.lstn_error", "cogs.listeners.lstn_guild",] # "cogs.listeners.lstn_msg"
+    lstn_extensions = [
+        "cogs.listeners.lstn_error",
+        "cogs.listeners.lstn_guild",
+    ]  # "cogs.listeners.lstn_msg"
     extensions = list(itertools.chain(cmd_extensions, lstn_extensions))
 
     # initiate bot and load extensions
     bot = MyBot(
-        intents=intents,
-        KEYS=KEYS,
-        is_docker=is_docker,
-        initial_extensions=extensions,
-        config_params=config_params
+        intents=intents, KEYS=KEYS, is_docker=is_docker, initial_extensions=extensions, config_params=config_params
     )
 
     # run bot
     logger.info("Starting bot...")
     bot.run(KEYS["DISCORD_TOKEN"])
+
 
 if __name__ == "__main__":
     main()
