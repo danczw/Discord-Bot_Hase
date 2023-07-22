@@ -12,20 +12,17 @@ logger = logging.getLogger(__name__)
 
 
 async def setup(bot: commands.Bot) -> None:
-    """Setup function for general commands
-    """
+    """Setup function for general commands"""
     await bot.add_cog(DataCommands(bot))
     logger.debug("Commands Loaded: DataCommands")
 
 
 class DataCommands(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
-        """Commands cog with data commands for crypto data, weather, etc.
-        """
+        """Commands cog with data commands for crypto data, weather, etc."""
         self.bot = bot
-        self.config_params = bot.config_params # type: ignore
-        self.KEYS = bot.KEYS # type: ignore
-
+        self.config_params = bot.config_params  # type: ignore
+        self.KEYS = bot.KEYS  # type: ignore
 
     # >>> CRYPTO <<< #
     @app_commands.command(name="crypto", description="Get price for a crypto currency.")
@@ -96,20 +93,20 @@ class DataCommands(commands.Cog):
 
         Returns:
             str: message with crypto data
-        """    
+        """
         cur_perc_round = self.config_params["currency_perc_rounding"]
 
         # prepare response message
         coin_name = coin_data["name"]
         coin_symbol = coin_data["symbol"]
-        coin_price = format(coin_data["market_data"]["current_price"]["eur"], ',.2f')
+        coin_price = format(coin_data["market_data"]["current_price"]["eur"], ",.2f")
         coin_ath_date = coin_data["market_data"]["ath_date"]["eur"].split("T")[0]
-        coin_ath_price = format(coin_data["market_data"]["ath"]["eur"], ',.2f')
+        coin_ath_price = format(coin_data["market_data"]["ath"]["eur"], ",.2f")
         coin_ath_change_perc = round(coin_data["market_data"]["ath_change_percentage"]["eur"], cur_perc_round)
         coin_curr_market_cap = millify(coin_data["market_data"]["market_cap"]["eur"])
         coin_curr_market_cap_rank = coin_data["market_data"]["market_cap_rank"]
-        coin_high_24h = format(coin_data["market_data"]["high_24h"]["eur"], ',.2f')
-        coin_low_24h = format(coin_data["market_data"]["low_24h"]["eur"], ',.2f')
+        coin_high_24h = format(coin_data["market_data"]["high_24h"]["eur"], ",.2f")
+        coin_low_24h = format(coin_data["market_data"]["low_24h"]["eur"], ",.2f")
         coin_price_change_perc_24h = round(coin_data["market_data"]["price_change_percentage_24h"], cur_perc_round)
         coin_price_change_perc_7d = round(coin_data["market_data"]["price_change_percentage_7d"], cur_perc_round)
         coin_price_change_perc_14d = round(coin_data["market_data"]["price_change_percentage_14d"], cur_perc_round)
@@ -126,7 +123,6 @@ class DataCommands(commands.Cog):
             f"**Market Cap:** {coin_curr_market_cap}€ (rank {coin_curr_market_cap_rank})\n"
             f"**ATH:** {coin_ath_price}€ on {coin_ath_date} "
             f"({coin_ath_change_perc}% since)\n\n"
-
             f"**Price Change:**\n"
             f"24h: {up_down_emoji(coin_price_change_perc_24h)} {coin_price_change_perc_24h}%\n"
             f"7d: {up_down_emoji(coin_price_change_perc_7d)} {coin_price_change_perc_7d}%\n"
@@ -135,12 +131,10 @@ class DataCommands(commands.Cog):
             f"60d: {up_down_emoji(coin_price_change_perc_60d)} {coin_price_change_perc_60d}%\n"
             f"200d: {up_down_emoji(coin_price_change_perc_200d)} {coin_price_change_perc_200d}%\n"
             f"1y: {up_down_emoji(coin_price_change_perc_1y)} {coin_price_change_perc_1y}%\n\n"
-
             f"More: {coin_coingecko_url}"
         )
 
         return message
-
 
     # >>> HOLIDAYS <<< #
     @app_commands.command(name="holidays", description="Get public holidays for a country.")
@@ -159,7 +153,6 @@ class DataCommands(commands.Cog):
 
         logger.info(f"Sending holiday data for {country}")
         await ctx.followup.send(response, ephemeral=True if ctx.guild else False)
-
 
     def helper_get_holiday_data(self, _country: str = "DE") -> str:
         """Get holiday data for a country and create a response message.
@@ -238,8 +231,9 @@ class DataCommands(commands.Cog):
         """
         # get geolocation data
         try:
-            geo_url = f"https://dev.virtualearth.net/REST/v1/Locations?q=" \
-                f"{location}&key={self.KEYS['BINGMAPS_API_KEY']}"
+            geo_url = (
+                f"https://dev.virtualearth.net/REST/v1/Locations?q=" f"{location}&key={self.KEYS['BINGMAPS_API_KEY']}"
+            )
             geo_response = requests.get(geo_url)
         except requests.exceptions.RequestException as error:
             logger.error(error)
@@ -256,9 +250,11 @@ class DataCommands(commands.Cog):
         # get weather data
         try:
             exclude = "minutely,hourly,alerts"
-            weather_url = f"https://api.openweathermap.org/data/3.0/onecall?" \
-                f"lat={lat}&lon={lng}&exclude={exclude}" \
+            weather_url = (
+                f"https://api.openweathermap.org/data/3.0/onecall?"
+                f"lat={lat}&lon={lng}&exclude={exclude}"
                 f"&appid={self.KEYS['OPENWEATHER_API_KEY']}&units=metric"
+            )
             weather_response = requests.get(weather_url)
         except requests.exceptions.RequestException as error:
             logger.error(error)
