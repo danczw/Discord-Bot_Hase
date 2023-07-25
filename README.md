@@ -1,12 +1,13 @@
 <div align="center">
 
-<font size="8"> <b> Hase - Discord Bot </b> </font>
+<font size="8"> <h1> <b> Hase - Discord Bot </b> </h> </font>
 
 <img src="./assets/hase-bot.png" width="200" height="200">
 
 <br>
 
 <a href="https://github.com/danczw/hase_discbot/actions"><img src="https://github.com/danczw/hase_discbot/workflows/Docker/badge.svg"></a>
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 </div>
 
 <br>
