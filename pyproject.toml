@@ -1,24 +1,26 @@
-[tool.poetry]
-name = "hase_discbot"
+[project]
+name = "hase-discord-bot"
 version = "2.1.0"
 description = "Basic Python based discord bot with various features."
 authors = ["danczw <dev.dc@pm.me>"]
 license = "Apache License 2.0"
+readme = "README.md"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-python-dotenv = "^0.21.0"
-openai = "^0.27.0"
-"discord.py" = "^2.1.0"
-PyYAML = "^6.0"
-python-dateutil = "^2.8.2"
+requires-python = ">=3.13"
+dependencies = [
+    "audioop-lts>=0.2.1",
+    "discord-py>=2.4.0",
+    "openai>=1.60.2",
+    "python-dateutil>=2.9.0.post0",
+    "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.3",
+]
 
-[tool.poetry.dev-dependencies]
-ruff = "^0.0.247"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "ruff>=0.9.3",
+]
 
 [tool.ruff]
 line-length = 120
