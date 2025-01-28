@@ -7,7 +7,7 @@ temperature_rounding: 1
 currency_perc_rounding: 1
 
 # Open AI
-oai_model: "gpt-4"
+oai_model: "gpt-4o"
 oai_timeout: 60
 oai_max_tokens: 800
 
