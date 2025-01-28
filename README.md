@@ -70,12 +70,12 @@ Hase comes with event handlers that react to certain actions within the server:
 
 ## Development environment setup
 
-To set up the development environment:
+This project uses [uv](https://github.com/astral-sh/uv) for handling dependencies. To set up the development environment:
 
-- create virtual virtual environment using `pyproject.toml` via `poetry install`
+- create virtual virtual environment using `pyproject.toml` via `uv sync`
 - create `.env` file with your personal discord bot token (refer to `.env.example`) and [invite the bot to your server](https://discordpy.readthedocs.io/en/stable/discord.html)
 - update further secrets in `.env` file, such as bot owner ID and guild ID (i.e. server ID)
-- run `poetry run python src/main.py`
+- run `uv run src/main.py`
 
 SQLite is used to store message history for chat. The database and relevant tables are created on start up if not existent and are located in `data/chat.db`. This allows for a persistent chat history and a more natural conversation flow, as the context is retainable for the model. The number of messages used as context while generating a chat response can be configured in `conf/config.yaml`.
 
