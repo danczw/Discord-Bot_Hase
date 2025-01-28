@@ -2,7 +2,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 import discord
-import openai
+from openai import OpenAI
 from database.chat_db import add_message_to_chat_db, get_chat_history
 from database.helper_db import open_connection
 from discord import app_commands
@@ -22,8 +22,9 @@ class GenAICommands(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         """Commands cog with NLP based commands such as chatting with GPT, etc."""
         self.bot = bot
+        self.oai_client = OpenAI()
+        self.oai_client.api_key = bot.KEYS["OPENAI_API_KEY"]  # type: ignore
         self.config_params = bot.config_params  # type: ignore
-        self.KEYS = bot.KEYS  # type: ignore
         self.error_msg_tired_robot = "OpenAI's robots seem to be very tired. :zzz: Please try again later."
 
     # >>> chat <<< #
@@ -93,7 +94,6 @@ class GenAICommands(commands.Cog):
         message_context = [{"role": hist[0], "content": hist[1]} for hist in chat_history]
 
         # use Open AI'S gpt to create an answer, wrapped in a timeout
-        openai.api_key = self.KEYS["OPENAI_API_KEY"]
         response_oai = self.helper_oai_chat_call(
             message_context=message_context,
             model=self.config_params["oai_model"],
@@ -144,7 +144,7 @@ class GenAICommands(commands.Cog):
         """
         with ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(
-                openai.ChatCompletion.create,
+                self.oai_client.chat.completions.create,
                 messages=message_context,
                 model=model,
                 max_tokens=max_tokens,
@@ -202,7 +202,6 @@ class GenAICommands(commands.Cog):
             str: image url
         """
         # use Open AI api to generate image, wrapped in a timeout
-        openai.api_key = self.KEYS["OPENAI_API_KEY"]
         response_oai = self.helper_oai_img_call(description=description)
 
         # check if timeout
@@ -221,16 +220,14 @@ class GenAICommands(commands.Cog):
 
         Returns:
             None if timeout, else url to image
-
-        TODO: refactor to combine with helper_oai_chat_call
         """
         with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(openai.Image.create, n=1, size="1024x1024", prompt=description)
+            future = executor.submit(self.oai_client.images.generate, model="dall-e-3", n=1, size="1024x1024", prompt=description)
             # TODO: move size to user input
 
             try:
                 response_oai = future.result(timeout=timeout)
-                return response_oai["data"][0]["url"]  # type: ignore
+                return response_oai.data[0].url  # type: ignore
             except TimeoutError:
                 logger.error("TimeoutError: OpenAI API call timed out.")
                 return None
