@@ -15,5 +15,7 @@ COPY ./conf/ ./conf/
 COPY ./data/ ./data/
 RUN chmod 755 main.py
 
+ENV ENV_DOCKER=True
+
 # run bot
 CMD ["uv", "run", "./main.py"]
