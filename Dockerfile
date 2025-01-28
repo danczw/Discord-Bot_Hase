@@ -1,50 +1,19 @@
 # ---------------------------------------------------------------------
-# build stage
-
-FROM python:3.10-slim AS builder
-
-ENV POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_NO_INTERACTION=1
-
-# to run poetry directly as soon as it's installed
-ENV PATH="$POETRY_HOME/bin:$PATH"
-
-# install poetry
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
-    && curl -sSL https://install.python-poetry.org | python3 - \
-    && chmod 755 ${POETRY_HOME}/bin/poetry
-
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim
 WORKDIR /app
 
-# copy only pyproject.toml and poetry.lock file nothing else here
-COPY poetry.lock pyproject.toml ./
+# copy only files for uv to create venv
+COPY uv.lock .python-version pyproject.toml ./
 
 # this will create the folder /app/.venv
-RUN poetry install --only main --no-root --no-ansi --no-interaction
+RUN uv sync --frozen
 
-# ---------------------------------------------------------------------
-# deployment stage
-
-FROM python:3.10-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PATH="/app/.venv/bin:$PATH" \
-    ENV_DOCKER="true" \
-    DISCORD_TOKEN="discord" \
-    OPENAI_API_KEY="openapi"
-
-WORKDIR /app
-
-# copy the venv folder from builder image 
-COPY --from=builder /app/.venv ./.venv
-
+# copy bot relevant files
 COPY ./src/ ./
 COPY ./logs/ ./logs/
 COPY ./conf/ ./conf/
 COPY ./data/ ./data/
 RUN chmod 755 main.py
 
-CMD ["python", "./main.py"]
+# run bot
+CMD ["uv", "run", "./main.py"]
