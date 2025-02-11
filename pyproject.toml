@@ -2,7 +2,7 @@
 name = "hase-discord-bot"
 version = "2.1.0"
 description = "Basic Python based discord bot with various features."
-authors = ["danczw <dev.dc@pm.me>"]
+authors = ["danczw <github@prvc.cc>"]
 license = "Apache License 2.0"
 readme = "README.md"
 
